@@ -179,11 +179,41 @@ pub struct Tree {
     pub modified_date: NaiveDateTime,
     pub created_by: String,
     pub modified_by: Option<String>,
+    pub top_node_customer_id: i32,
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub enum TreeType {
     Unilevel,
     Enroller,
     Binary,
+}
+
+#[derive(Debug)]
+pub struct Period {
+    pub period_id: i32,
+    pub period_type: PeriodType,
+    pub period_name: String,
+    pub period_start_date: NaiveDateTime,
+    pub period_end_date: NaiveDateTime,
+    pub period_status: PeriodStatus,
+    pub company_id: i32,
+    pub created_date: NaiveDateTime,
+    pub modified_date: NaiveDateTime,
+    pub created_by: String,
+    pub modified_by: Option<String>,
+}
+
+#[derive(Debug, PartialEq)]
+pub enum PeriodStatus {
+    Open,
+    Closed,
+    Pending,
+    Cancelled,
+}
+
+#[derive(Debug, PartialEq)]
+pub enum PeriodType {
+    Weekly,
+    Monthly,
 }

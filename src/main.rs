@@ -1,10 +1,8 @@
 // main.rs
 mod factory;
 mod models;
-
-use factory::create_fake_order;
 fn main() {
-    let order = create_fake_order();
+    let order = factory::create_fake_order(1);
 
     // Print the order and its details
     println!(
@@ -25,5 +23,13 @@ fn main() {
     println!(
         "Customer ID: {}, Company ID: {}",
         customer.customer_id, customer.company_id
+    );
+
+    let tree = factory::create_fake_tree(1);
+
+    // Print the tree
+    println!(
+        "Tree ID: {}, Tree Name: {}, Tree Type: {:?}",
+        tree.tree_id, tree.tree_name, tree.tree_type
     );
 }

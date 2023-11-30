@@ -1,5 +1,5 @@
+use super::models as ce_models;
 use chrono::NaiveDate;
-use commission_engine::models::{Customer, Order, OrderDetail};
 use faker_rand::en_us::addresses::{Address, CityName, PostalCode, SecondaryAddress};
 use faker_rand::en_us::internet::Email;
 use faker_rand::en_us::names::{FirstName, LastName};
@@ -7,14 +7,14 @@ use faker_rand::en_us::phones::PhoneNumber;
 use faker_rand::lorem::{Sentence, Word};
 use rand::Rng;
 
-pub fn create_fake_order() -> Order {
+pub fn create_fake_order(customer_id: i32) -> ce_models::Order {
     //Set an orderID for the order
     let order_id = Rng::gen_range(&mut rand::thread_rng(), 1..1000);
 
-    Order {
+    ce_models::Order {
         company_id: Rng::gen_range(&mut rand::thread_rng(), 1..10),
         order_id: order_id,
-        customer_id: Rng::gen_range(&mut rand::thread_rng(), 1..1000),
+        customer_id: customer_id,
         order_status_id: Rng::gen_range(&mut rand::thread_rng(), 1..1000),
         order_date: NaiveDate::from_ymd_opt(2023, 4, 30)
             .expect("Invalid date")
@@ -120,8 +120,8 @@ pub fn create_fake_order() -> Order {
     }
 }
 
-pub fn create_fake_order_detail(order_id: i32, order_line: i32) -> OrderDetail {
-    OrderDetail {
+pub fn create_fake_order_detail(order_id: i32, order_line: i32) -> ce_models::OrderDetail {
+    ce_models::OrderDetail {
         order_id,
         order_line,
         order_detail_id: None,
@@ -176,9 +176,9 @@ pub fn create_fake_order_detail(order_id: i32, order_line: i32) -> OrderDetail {
     }
 }
 
-pub fn create_fake_customer() -> Customer {
-    Customer {
-        customer_id: Rng::gen_range(&mut rand::thread_rng(), 1..1000),
+pub fn create_fake_customer() -> ce_models::Customer {
+    ce_models::Customer {
+        customer_id: Rng::gen_range(&mut rand::thread_rng(), 1..10),
         company_id: Rng::gen_range(&mut rand::thread_rng(), 1..10),
         customer_type_id: Rng::gen_range(&mut rand::thread_rng(), 1..10),
         customer_status_id: Rng::gen_range(&mut rand::thread_rng(), 1..10),
@@ -186,5 +186,36 @@ pub fn create_fake_customer() -> Customer {
         enroller_id: None,
         sponsor_id: None,
         binary_placement_id: None,
+    }
+}
+
+pub fn create_fake_tree(company_id: i32) -> ce_models::Tree {
+    ce_models::Tree {
+        tree_id: Rng::gen_range(&mut rand::thread_rng(), 1..1000),
+        tree_type: ce_models::TreeType::Unilevel,
+        tree_name: "Main".to_string(),
+        company_id: company_id,
+        is_active: true,
+        created_date: NaiveDate::from_ymd_opt(2023, 4, 30)
+            .expect("Invalid date")
+            .and_hms_opt(12, 0, 0)
+            .expect("Invalid time"),
+        modified_date: NaiveDate::from_ymd_opt(2023, 4, 30)
+            .expect("Invalid date")
+            .and_hms_opt(12, 0, 0)
+            .expect("Invalid time"),
+        created_by: "Jake Test".to_string(),
+        modified_by: None,
+        top_node_customer_id: Rng::gen_range(&mut rand::thread_rng(), 1..1000),
+    }
+}
+
+pub fn create_fake_company() -> ce_models::Company {
+    let company_id: i32 = Rng::gen_range(&mut rand::thread_rng(), 1..2);
+
+    ce_models::Company {
+        company_id: company_id,
+        company_name: format!("Test Company {}", company_id),
+        tree_types: vec![ce_models::TreeType::Unilevel],
     }
 }
