@@ -9,6 +9,7 @@ mod order_tests {
     #[test]
     fn test_order_creation() {
         let order = Order {
+            company_id: 1,
             order_id: 1,
             customer_id: 10,
             order_status_id: 2,
@@ -158,6 +159,7 @@ mod order_tests {
             }],
         };
 
+        assert_eq!(order.company_id, 1);
         assert_eq!(order.order_id, 1);
         assert_eq!(order.customer_id, 10);
         assert!(order.middle_name.is_some());

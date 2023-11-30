@@ -12,6 +12,7 @@ pub fn create_fake_order() -> Order {
     let order_id = Rng::gen_range(&mut rand::thread_rng(), 1..1000);
 
     Order {
+        company_id: Rng::gen_range(&mut rand::thread_rng(), 1..10),
         order_id: order_id,
         customer_id: Rng::gen_range(&mut rand::thread_rng(), 1..1000),
         order_status_id: Rng::gen_range(&mut rand::thread_rng(), 1..1000),

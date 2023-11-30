@@ -5,6 +5,7 @@ use std::option::Option;
 
 #[derive(Debug)]
 pub struct Order {
+    pub company_id: i32,
     pub order_id: i32,
     pub customer_id: i32,
     pub order_status_id: i32,
