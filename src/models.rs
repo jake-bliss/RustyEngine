@@ -4,6 +4,13 @@ use chrono::NaiveDateTime;
 use std::option::Option;
 
 #[derive(Debug)]
+pub struct Company {
+    pub company_id: i32,
+    pub company_name: String,
+    pub tree_types: Vec<TreeType>,
+}
+
+#[derive(Debug)]
 pub struct Order {
     pub company_id: i32,
     pub order_id: i32,
@@ -147,4 +154,36 @@ pub struct OrderDetail {
     pub manual_tax: Option<f64>,
     pub is_state_tax_override: bool,
     pub reference1: Option<String>,
+}
+
+#[derive(Debug)]
+pub struct Customer {
+    pub customer_id: i32,
+    pub company_id: i32,
+    pub customer_type_id: i32,
+    pub customer_status_id: i32,
+    pub customer_sub_status_id: Option<i32>,
+    pub enroller_id: Option<i32>,
+    pub sponsor_id: Option<i32>,
+    pub binary_placement_id: Option<i32>,
+}
+
+#[derive(Debug)]
+pub struct Tree {
+    pub tree_id: i32,
+    pub tree_name: String,
+    pub tree_type: TreeType,
+    pub company_id: i32,
+    pub is_active: bool,
+    pub created_date: NaiveDateTime,
+    pub modified_date: NaiveDateTime,
+    pub created_by: String,
+    pub modified_by: Option<String>,
+}
+
+#[derive(Debug)]
+pub enum TreeType {
+    Unilevel,
+    Enroller,
+    Binary,
 }
