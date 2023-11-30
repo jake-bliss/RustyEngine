@@ -66,5 +66,18 @@ mod data_creation_1_tests {
         assert!(customers.len() == 10);
         //We need to test that some customers EnrollerID is < their CustomerID
         assert!(customers[2].enroller_id.unwrap() < customers[2].customer_id);
+
+        //Validate that there is an order with a customer_id of each customer
+        for customer in customers.iter() {
+            let mut found = false;
+
+            for order in orders.iter() {
+                if order.customer_id == customer.customer_id {
+                    found = true;
+                }
+            }
+
+            assert!(found);
+        }
     }
 }
