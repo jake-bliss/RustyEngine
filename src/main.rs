@@ -18,4 +18,12 @@ fn main() {
         );
         // Add more fields to print as per your requirement
     }
+
+    let customer = factory::create_fake_customer();
+
+    // Print the customer
+    println!(
+        "Customer ID: {}, Company ID: {}",
+        customer.customer_id, customer.company_id
+    );
 }

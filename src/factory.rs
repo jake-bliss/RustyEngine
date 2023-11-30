@@ -1,5 +1,5 @@
 use chrono::NaiveDate;
-use commission_engine::models::{Order, OrderDetail};
+use commission_engine::models::{Customer, Order, OrderDetail};
 use faker_rand::en_us::addresses::{Address, CityName, PostalCode, SecondaryAddress};
 use faker_rand::en_us::internet::Email;
 use faker_rand::en_us::names::{FirstName, LastName};
@@ -173,5 +173,18 @@ pub fn create_fake_order_detail(order_id: i32, order_line: i32) -> OrderDetail {
         manual_tax: None,
         is_state_tax_override: false,
         reference1: Some("Ref001".to_string()),
+    }
+}
+
+pub fn create_fake_customer() -> Customer {
+    Customer {
+        customer_id: Rng::gen_range(&mut rand::thread_rng(), 1..1000),
+        company_id: Rng::gen_range(&mut rand::thread_rng(), 1..10),
+        customer_type_id: Rng::gen_range(&mut rand::thread_rng(), 1..10),
+        customer_status_id: Rng::gen_range(&mut rand::thread_rng(), 1..10),
+        customer_sub_status_id: None,
+        enroller_id: None,
+        sponsor_id: None,
+        binary_placement_id: None,
     }
 }
