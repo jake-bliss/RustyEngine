@@ -10,3 +10,5 @@ chrono = {version = "0.4.31", features = ["serde"]}
 rand = "0.8.5"
 faker_rand = "0.1.1"
 serde = {version = "1.0.193", features = ["derive"]}
+diesel = { version = "2.1.0", features = ["postgres"] }
+dotenvy = "0.15"
