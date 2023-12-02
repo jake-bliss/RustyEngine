@@ -1,5 +1,5 @@
 use super::models as ce_models;
-use chrono::NaiveDate;
+use chrono::{Local, NaiveDate, NaiveDateTime};
 use faker_rand::en_us::addresses::{Address, CityName, PostalCode, SecondaryAddress};
 use faker_rand::en_us::internet::Email;
 use faker_rand::en_us::names::{FirstName, LastName};
@@ -41,15 +41,15 @@ pub fn create_fake_order(customer_id: i32) -> ce_models::Order {
         email: Some(rand::random::<Email>().to_string()),
         phone: Some(rand::random::<PhoneNumber>().to_string()),
         notes: Some(rand::random::<Sentence>().to_string()),
-        total: Rng::gen_range(&mut rand::thread_rng(), 1.0..500.0),
-        sub_total: Rng::gen_range(&mut rand::thread_rng(), 1.0..500.0),
-        tax_total: Rng::gen_range(&mut rand::thread_rng(), 1.0..500.0),
-        shipping_total: Rng::gen_range(&mut rand::thread_rng(), 1.0..500.0),
-        discount_total: Rng::gen_range(&mut rand::thread_rng(), 1.0..500.0),
-        discount_percent: Rng::gen_range(&mut rand::thread_rng(), 1.0..500.0),
-        weight_total: Rng::gen_range(&mut rand::thread_rng(), 1.0..500.0),
-        business_volume_total: Rng::gen_range(&mut rand::thread_rng(), 1.0..500.0),
-        commissionable_volume_total: Rng::gen_range(&mut rand::thread_rng(), 1.0..500.0),
+        total: generate_random_float_two_decimals(1.0, 500.0),
+        sub_total: generate_random_float_two_decimals(1.0, 500.0),
+        tax_total: generate_random_float_two_decimals(1.0, 500.0),
+        shipping_total: generate_random_float_two_decimals(1.0, 500.0),
+        discount_total: generate_random_float_two_decimals(1.0, 500.0),
+        discount_percent: generate_random_float_two_decimals(1.0, 500.0),
+        weight_total: generate_random_float_two_decimals(1.0, 500.0),
+        business_volume_total: generate_random_float_two_decimals(1.0, 500.0),
+        commissionable_volume_total: generate_random_float_two_decimals(1.0, 500.0),
         other1_total: None,
         other2_total: None,
         other3_total: None,
@@ -60,16 +60,16 @@ pub fn create_fake_order(customer_id: i32) -> ce_models::Order {
         other8_total: None,
         other9_total: None,
         other10_total: None,
-        shipping_tax: Rng::gen_range(&mut rand::thread_rng(), 1.0..500.0),
-        order_tax: Rng::gen_range(&mut rand::thread_rng(), 1.0..500.0),
-        fed_tax_total: Rng::gen_range(&mut rand::thread_rng(), 1.0..500.0),
-        state_tax_total: Rng::gen_range(&mut rand::thread_rng(), 1.0..500.0),
-        fed_shipping_tax: Rng::gen_range(&mut rand::thread_rng(), 1.0..500.0),
-        state_shipping_tax: Rng::gen_range(&mut rand::thread_rng(), 1.0..500.0),
-        city_local_shipping_tax: Rng::gen_range(&mut rand::thread_rng(), 1.0..500.0),
-        city_shipping_tax: Rng::gen_range(&mut rand::thread_rng(), 1.0..500.0),
-        county_shipping_tax: Rng::gen_range(&mut rand::thread_rng(), 1.0..500.0),
-        county_local_shipping_tax: Rng::gen_range(&mut rand::thread_rng(), 1.0..500.0),
+        shipping_tax: generate_random_float_two_decimals(1.0, 500.0),
+        order_tax: generate_random_float_two_decimals(1.0, 500.0),
+        fed_tax_total: generate_random_float_two_decimals(1.0, 500.0),
+        state_tax_total: generate_random_float_two_decimals(1.0, 500.0),
+        fed_shipping_tax: generate_random_float_two_decimals(1.0, 500.0),
+        state_shipping_tax: generate_random_float_two_decimals(1.0, 500.0),
+        city_local_shipping_tax: generate_random_float_two_decimals(1.0, 500.0),
+        city_shipping_tax: generate_random_float_two_decimals(1.0, 500.0),
+        county_shipping_tax: generate_random_float_two_decimals(1.0, 500.0),
+        county_local_shipping_tax: generate_random_float_two_decimals(1.0, 500.0),
         other11: None,
         other12: None,
         other13: None,
@@ -109,7 +109,7 @@ pub fn create_fake_order(customer_id: i32) -> ce_models::Order {
         tax_integration_commit: None,
         handling_fee: None,
         pickup_name: None,
-        total_taxable: Rng::gen_range(&mut rand::thread_rng(), 1.0..500.0),
+        total_taxable: generate_random_float_two_decimals(1.0, 500.0),
         order_sub_status_id: None,
         referral_id: None,
         //Random number of order details
@@ -130,15 +130,15 @@ pub fn create_fake_order_detail(order_id: i32, order_line: i32) -> ce_models::Or
         item_code: rand::random::<Word>().to_string(),
         item_description: rand::random::<Sentence>().to_string(),
         quantity: Rng::gen_range(&mut rand::thread_rng(), 1..10),
-        price_each: Rng::gen_range(&mut rand::thread_rng(), 1.0..500.0),
-        price_total: Rng::gen_range(&mut rand::thread_rng(), 1.0..500.0),
-        tax: Rng::gen_range(&mut rand::thread_rng(), 1.0..500.0),
-        weight_each: Rng::gen_range(&mut rand::thread_rng(), 1.0..500.0),
-        weight: Rng::gen_range(&mut rand::thread_rng(), 1.0..500.0),
-        business_volume_each: Rng::gen_range(&mut rand::thread_rng(), 1.0..500.0),
-        business_volume: Rng::gen_range(&mut rand::thread_rng(), 1.0..500.0),
-        commissionable_volume_each: Rng::gen_range(&mut rand::thread_rng(), 1.0..500.0),
-        commissionable_volume: Rng::gen_range(&mut rand::thread_rng(), 1.0..500.0),
+        price_each: generate_random_float_two_decimals(1.0, 500.0),
+        price_total: generate_random_float_two_decimals(1.0, 500.0),
+        tax: generate_random_float_two_decimals(1.0, 500.0),
+        weight_each: generate_random_float_two_decimals(1.0, 500.0),
+        weight: generate_random_float_two_decimals(1.0, 500.0),
+        business_volume_each: generate_random_float_two_decimals(1.0, 500.0),
+        business_volume: generate_random_float_two_decimals(1.0, 500.0),
+        commissionable_volume_each: generate_random_float_two_decimals(1.0, 500.0),
+        commissionable_volume: generate_random_float_two_decimals(1.0, 500.0),
         other1_each: None,
         other1: None,
         other2_each: None,
@@ -149,9 +149,9 @@ pub fn create_fake_order_detail(order_id: i32, order_line: i32) -> ce_models::Or
         other4: None,
         other5_each: None,
         other5: None,
-        original_taxable_each: Rng::gen_range(&mut rand::thread_rng(), 1.0..500.0),
-        original_business_volume_each: Rng::gen_range(&mut rand::thread_rng(), 1.0..500.0),
-        original_commissionable_volume_each: Rng::gen_range(&mut rand::thread_rng(), 1.0..500.0),
+        original_taxable_each: generate_random_float_two_decimals(1.0, 500.0),
+        original_business_volume_each: generate_random_float_two_decimals(1.0, 500.0),
+        original_commissionable_volume_each: generate_random_float_two_decimals(1.0, 500.0),
         other6_each: None,
         other6: None,
         other7_each: None,
@@ -163,13 +163,13 @@ pub fn create_fake_order_detail(order_id: i32, order_line: i32) -> ce_models::Or
         other10_each: None,
         other10: None,
         parent_item_id: None,
-        taxable: Rng::gen_range(&mut rand::thread_rng(), 1.0..500.0),
-        fed_tax: Rng::gen_range(&mut rand::thread_rng(), 1.0..500.0),
-        state_tax: Rng::gen_range(&mut rand::thread_rng(), 1.0..500.0),
-        city_tax: Rng::gen_range(&mut rand::thread_rng(), 1.0..500.0),
-        city_local_tax: Rng::gen_range(&mut rand::thread_rng(), 1.0..500.0),
-        county_tax: Rng::gen_range(&mut rand::thread_rng(), 1.0..500.0),
-        county_local_tax: Rng::gen_range(&mut rand::thread_rng(), 1.0..500.0),
+        taxable: generate_random_float_two_decimals(1.0, 500.0),
+        fed_tax: generate_random_float_two_decimals(1.0, 500.0),
+        state_tax: generate_random_float_two_decimals(1.0, 500.0),
+        city_tax: generate_random_float_two_decimals(1.0, 500.0),
+        city_local_tax: generate_random_float_two_decimals(1.0, 500.0),
+        county_tax: generate_random_float_two_decimals(1.0, 500.0),
+        county_local_tax: generate_random_float_two_decimals(1.0, 500.0),
         manual_tax: None,
         is_state_tax_override: false,
         reference1: Some("Ref001".to_string()),
@@ -218,4 +218,35 @@ pub fn create_fake_company() -> ce_models::Company {
         company_name: format!("Test Company {}", company_id),
         tree_types: vec![ce_models::TreeType::Unilevel],
     }
+}
+
+// Params should be start and end date
+pub fn create_fake_period(
+    start_date: NaiveDateTime,
+    end_date: NaiveDateTime,
+    period_id: i32,
+    period_type: ce_models::PeriodType,
+) -> ce_models::Period {
+    let now = Local::now();
+
+    ce_models::Period {
+        period_id: period_id,
+        period_type: period_type,
+        period_name: start_date.format("%B %Y").to_string(),
+        period_start_date: start_date,
+        period_end_date: end_date,
+        period_status: ce_models::PeriodStatus::Open,
+        company_id: 1,
+        created_date: now.naive_local(),
+        modified_date: now.naive_local(),
+        created_by: "Jake Test".to_string(),
+        modified_by: None,
+    }
+}
+
+fn generate_random_float_two_decimals(start: f64, end: f64) -> f64 {
+    let mut rng = rand::thread_rng();
+    let random_number: f64 = rng.gen_range(start..end);
+    let rounded_number = (random_number * 100.0).round() / 100.0;
+    rounded_number
 }

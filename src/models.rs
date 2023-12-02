@@ -1,16 +1,16 @@
 // models.rs
-
 use chrono::NaiveDateTime;
+use serde::{Deserialize, Serialize};
 use std::option::Option;
 
-#[derive(Debug)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct Company {
     pub company_id: i32,
     pub company_name: String,
     pub tree_types: Vec<TreeType>,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct Order {
     pub company_id: i32,
     pub order_id: i32,
@@ -101,7 +101,7 @@ pub struct Order {
     pub order_details: Vec<OrderDetail>,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct OrderDetail {
     pub order_id: i32,
     pub order_line: i32,
@@ -156,7 +156,7 @@ pub struct OrderDetail {
     pub reference1: Option<String>,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct Customer {
     pub customer_id: i32,
     pub company_id: i32,
@@ -168,7 +168,7 @@ pub struct Customer {
     pub binary_placement_id: Option<i32>,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct Tree {
     pub tree_id: i32,
     pub tree_name: String,
@@ -182,14 +182,14 @@ pub struct Tree {
     pub top_node_customer_id: i32,
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Serialize, Deserialize)]
 pub enum TreeType {
     Unilevel,
     Enroller,
     Binary,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct Period {
     pub period_id: i32,
     pub period_type: PeriodType,
@@ -204,7 +204,7 @@ pub struct Period {
     pub modified_by: Option<String>,
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Serialize, Deserialize)]
 pub enum PeriodStatus {
     Open,
     Closed,
@@ -212,7 +212,7 @@ pub enum PeriodStatus {
     Cancelled,
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Serialize, Deserialize)]
 pub enum PeriodType {
     Weekly,
     Monthly,

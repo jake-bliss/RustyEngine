@@ -29,8 +29,14 @@ mod data_creation_1_tests {
 
             customer.customer_id = i;
 
+            //Set the EnrollerID for the customer
             if i > 1 {
                 customer.enroller_id = Some(i - 1);
+            }
+
+            //Set the EnrollerID for the customer randomly as more customers enter the tree
+            if i > 2 {
+                customer.enroller_id = Some(Rng::gen_range(&mut rand::thread_rng(), 1..(i - 1)));
             }
 
             //Generate 1-3 orders for each customer
@@ -58,6 +64,11 @@ mod data_creation_1_tests {
                 "Order ID: {}, Customer ID: {}",
                 order.order_id, order.customer_id
             );
+            // Print Business Volume and Commissionable Volume
+            println!(
+                "Business Volume: {}, Commissionable Volume: {}",
+                order.business_volume_total, order.commissionable_volume_total
+            );
         }
 
         assert!(company.company_id > 0);
@@ -79,5 +90,29 @@ mod data_creation_1_tests {
 
             assert!(found);
         }
+    }
+
+    #[test]
+
+    fn test_period_generation() {
+        //Create Period
+        let period: ce_models::Period = ce_factory::create_fake_period(
+            chrono::NaiveDate::from_ymd_opt(2023, 4, 30)
+                .expect("Invalid date")
+                .and_hms_opt(12, 0, 0)
+                .expect("Invalid time"),
+            chrono::NaiveDate::from_ymd_opt(2023, 4, 30)
+                .expect("Invalid date")
+                .and_hms_opt(12, 0, 0)
+                .expect("Invalid time"),
+            1,
+            ce_models::PeriodType::Monthly,
+        );
+
+        assert_eq!(period.period_id, 1);
+        assert_eq!(period.period_type, ce_models::PeriodType::Monthly);
+        assert_eq!(period.period_name, "Main".to_string());
+        assert_eq!(period.company_id, 1);
+        assert_eq!(period.period_status, ce_models::PeriodStatus::Open);
     }
 }
