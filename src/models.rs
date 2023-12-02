@@ -10,7 +10,7 @@ pub struct Company {
     pub tree_types: Vec<TreeType>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Order {
     pub company_id: i32,
     pub order_id: i32,
@@ -101,7 +101,7 @@ pub struct Order {
     pub order_details: Vec<OrderDetail>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct OrderDetail {
     pub order_id: i32,
     pub order_line: i32,
@@ -216,4 +216,15 @@ pub enum PeriodStatus {
 pub enum PeriodType {
     Weekly,
     Monthly,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct Bonus {
+    pub bonus_id: i32,
+    pub bonus_name: String,
+    pub bonus_percentage: f64,
+    pub bonus_amount: f64,
+    pub to_customer_id: i32,
+    pub source_customer_id: Option<i32>,
+    pub source_order_id: Option<i32>,
 }

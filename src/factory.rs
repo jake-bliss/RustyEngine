@@ -1,4 +1,6 @@
+use super::factory as ce_factory;
 use super::models as ce_models;
+use chrono::Datelike;
 use chrono::{Local, NaiveDate, NaiveDateTime};
 use faker_rand::en_us::addresses::{Address, CityName, PostalCode, SecondaryAddress};
 use faker_rand::en_us::internet::Email;
@@ -249,4 +251,126 @@ fn generate_random_float_two_decimals(start: f64, end: f64) -> f64 {
     let random_number: f64 = rng.gen_range(start..end);
     let rounded_number = (random_number * 100.0).round() / 100.0;
     rounded_number
+}
+
+// Return all Vectors it creates
+pub fn _generate_test_data(
+    number_of_customers: i32,
+    orders_per_customer: i32,
+) -> (
+    Vec<chrono::NaiveDateTime>,
+    ce_models::Company,
+    ce_models::Tree,
+    Vec<ce_models::Customer>,
+    Vec<ce_models::Order>,
+    Vec<ce_models::Period>,
+) {
+    //Create a vector of 364 Date Times
+    let mut dates: Vec<chrono::NaiveDateTime> = Vec::new();
+
+    //Set the start date of Jan 1st 2023
+    let mut date = chrono::NaiveDate::from_ymd_opt(2023, 1, 1)
+        .expect("Invalid date")
+        .and_hms_opt(12, 0, 0)
+        .expect("Invalid time");
+
+    //Add all dates to the vector
+    for _i in 1..365 {
+        dates.push(date);
+
+        //Add 1 day to the date
+        date = date
+            .checked_add_signed(chrono::Duration::days(1))
+            .expect("Invalid date");
+    }
+
+    //Create a Company
+    let company: ce_models::Company = ce_factory::create_fake_company();
+
+    //Create a Tree
+    let mut tree: ce_models::Tree = ce_factory::create_fake_tree(company.company_id);
+
+    //Create Vector for Customers
+    let mut customers: Vec<ce_models::Customer> = Vec::new();
+
+    //Create Vector for Orders
+    let mut orders: Vec<ce_models::Order> = Vec::new();
+
+    //Generate customers and Orders for each customer
+    for i in 1..number_of_customers {
+        let mut customer = ce_factory::create_fake_customer();
+
+        customer.customer_id = i;
+
+        //Set the EnrollerID for the customer
+        if i > 1 {
+            customer.enroller_id = Some(i - 1);
+        }
+
+        //Set the EnrollerID for the customer randomly as more customers enter the tree
+        if i > 2 {
+            customer.enroller_id = Some(Rng::gen_range(&mut rand::thread_rng(), 1..(i - 1)));
+        }
+
+        //Generate 1-3 orders for each customer
+        for _j in 1..=Rng::gen_range(&mut rand::thread_rng(), 1..orders_per_customer) {
+            let mut order = ce_factory::create_fake_order(customer.customer_id);
+
+            //Get a random date from the dates vector
+            let date = dates[Rng::gen_range(&mut rand::thread_rng(), 0..(dates.len() - 1))];
+
+            //Set the order date and created date to the random date
+            order.created_date = date;
+            order.order_date = date;
+
+            orders.push(order);
+        }
+
+        // Add the customer to the vector
+        customers.push(customer);
+    }
+
+    //Set Tree Top Node Customer ID
+    tree.top_node_customer_id = customers.first().unwrap().customer_id;
+
+    // Create a Vector of Periods
+    let mut periods: Vec<ce_models::Period> = Vec::new();
+
+    // Add 12 monthly periods to the vector
+    for i in 1..13 {
+        // First start date should be jan 1 2023
+        let start_date = chrono::NaiveDate::from_ymd_opt(2023, i, 1)
+            .expect("Invalid date")
+            .and_hms_opt(12, 0, 0)
+            .expect("Invalid time");
+
+        // End date should be start date Adding 1 month and then subtracting 1 day
+        let mut end_date = start_date
+            .checked_add_signed(chrono::Duration::days(35))
+            .expect("Invalid date");
+
+        // Set day to 1 and subtract 1 second
+        end_date = end_date
+            .with_day(1)
+            .expect("Invalid date")
+            .checked_sub_signed(chrono::Duration::days(1))
+            .expect("Invalid date")
+            .checked_sub_signed(chrono::Duration::seconds(1))
+            .expect("Invalid date");
+
+        // Conver i to i32
+        let i_32 = i as i32;
+
+        let period = ce_factory::create_fake_period(
+            start_date,
+            end_date,
+            i_32,
+            ce_models::PeriodType::Monthly,
+        );
+
+        periods.push(period);
+    }
+
+    //Return all Vectors
+    (dates, company, tree, customers, orders, periods)
 }

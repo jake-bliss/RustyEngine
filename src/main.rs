@@ -2,156 +2,75 @@
 mod factory;
 mod models;
 
-use chrono::Datelike;
 use commission_engine::factory as ce_factory;
 use commission_engine::models as ce_models;
-use rand::Rng;
 
 fn main() {
-    //Create a vector of 364 Date Times
-    let mut dates: Vec<chrono::NaiveDateTime> = Vec::new();
+    // Generate Test Data
+    let (dates, company, tree, customers, orders, periods) =
+        ce_factory::_generate_test_data(100, 10);
 
-    //Set the start date of Jan 1st 2023
-    let mut date = chrono::NaiveDate::from_ymd_opt(2023, 1, 1)
-        .expect("Invalid date")
-        .and_hms_opt(12, 0, 0)
-        .expect("Invalid time");
+    // Find all orders that are in the first period
+    // These are references to Orders so we can't mutate them
+    let first_period = periods.first().unwrap();
 
-    //Add all dates to the vector
-    for _i in 1..365 {
-        dates.push(date);
+    let orders_in_period: Vec<&ce_models::Order> = orders
+        .iter()
+        .filter(|&order| {
+            order.order_date >= first_period.period_start_date
+                && order.order_date <= first_period.period_end_date
+        })
+        .collect();
 
-        //Add 1 day to the date
-        date = date
-            .checked_add_signed(chrono::Duration::days(1))
-            .expect("Invalid date");
-    }
-
-    // //Print each date
-    // for date in dates.iter() {
-    //     println!("{}", date);
-    // }
-
-    //Create a Company
-    let company: ce_models::Company = ce_factory::create_fake_company();
-
-    //Create a Customer
-    // let master_customer: ce_models::Customer = ce_factory::create_fake_customer();
-
-    //Create a Tree
-    let tree: ce_models::Tree = ce_factory::create_fake_tree(company.company_id);
-
-    //Create Vector for Customers
-    let mut customers: Vec<ce_models::Customer> = Vec::new();
-
-    //Create Vector for Orders
-    let mut orders: Vec<ce_models::Order> = Vec::new();
-
-    //Generate 10 customers and Orders for each customer
-    for i in 1..11 {
-        let mut customer = ce_factory::create_fake_customer();
-
-        customer.customer_id = i;
-
-        //Set the EnrollerID for the customer
-        if i > 1 {
-            customer.enroller_id = Some(i - 1);
-        }
-
-        //Set the EnrollerID for the customer randomly as more customers enter the tree
-        if i > 2 {
-            customer.enroller_id = Some(Rng::gen_range(&mut rand::thread_rng(), 1..(i - 1)));
-        }
-
-        //Generate 1-3 orders for each customer
-        for _j in 1..=Rng::gen_range(&mut rand::thread_rng(), 1..3) {
-            let mut order = ce_factory::create_fake_order(customer.customer_id);
-
-            //Get a random date from the dates vector
-            let date = dates[Rng::gen_range(&mut rand::thread_rng(), 0..(dates.len() - 1))];
-
-            //Set the order date and created date to the random date
-            order.created_date = date;
-            order.order_date = date;
-
-            orders.push(order);
-        }
-
-        // Add the customer to the vector
-        customers.push(customer);
-    }
-
-    //Print Each CustomerID and their EnrollerID
-    for customer in customers.iter() {
-        println!(
-            "Customer ID: {}, Enroller ID: {:?}",
-            customer.customer_id, customer.enroller_id
-        );
-    }
-
-    //Print Each OrderID and their CustomerID
-    for order in orders.iter() {
+    //Print Each order in the first period and their OrderID, CustomerID, and Order Date
+    for order in orders_in_period.iter() {
         println!(
             "Order ID: {}, Customer ID: {}, Order Date: {}",
             order.order_id, order.customer_id, order.order_date
         );
-        // Print Business Volume and Commissionable Volume
-        println!(
-            "Business Volume: {}, Commissionable Volume: {}",
-            order.business_volume_total, order.commissionable_volume_total
-        );
     }
 
-    // Create a Vector of Periods
-    let mut periods: Vec<ce_models::Period> = Vec::new();
+    //Create a Vector of Bonuses
+    let mut bonuses: Vec<ce_models::Bonus> = Vec::new();
 
-    // Add 12 monthly periods to the vector
-    for i in 1..13 {
-        // First start date should be jan 1 2023
-        let start_date = chrono::NaiveDate::from_ymd_opt(2023, i, 1)
-            .expect("Invalid date")
-            .and_hms_opt(12, 0, 0)
-            .expect("Invalid time");
+    //Iterate over orders in the first period
+    //We will want to create a bonus for each order if applicable
+    for order in orders_in_period.iter() {
+        //Find the customer that placed the order
+        let customer = customers
+            .iter()
+            .find(|&customer| customer.customer_id == order.customer_id)
+            .unwrap();
 
-        // End date should be start date Adding 1 month and then subtracting 1 day
-        let mut end_date = start_date
-            .checked_add_signed(chrono::Duration::days(35))
-            .expect("Invalid date");
+        //See if the customer has an enroller
+        if let Some(enroller_id) = customer.enroller_id {
+            //Create a bonus for the enroller
+            let bonus = ce_models::Bonus {
+                bonus_id: 1,
+                bonus_name: "Retail Bonus".to_string(),
+                bonus_percentage: 20.0,
+                bonus_amount: order.commissionable_volume_total * 0.2,
+                to_customer_id: enroller_id,
+                source_customer_id: Some(customer.customer_id),
+                source_order_id: Some(order.order_id),
+            };
 
-        // Set day to 1 and subtract 1 second
-        end_date = end_date
-            .with_day(1)
-            .expect("Invalid date")
-            .checked_sub_signed(chrono::Duration::days(1))
-            .expect("Invalid date")
-            .checked_sub_signed(chrono::Duration::seconds(1))
-            .expect("Invalid date");
-
-        // Conver i to i32
-        let i_32 = i as i32;
-
-        let period = ce_factory::create_fake_period(
-            start_date,
-            end_date,
-            i_32,
-            ce_models::PeriodType::Monthly,
-        );
-
-        periods.push(period);
+            //Add the bonus to the vector
+            bonuses.push(bonus);
+        }
     }
 
-    //Print Each PeriodID and their PeriodType, Start Date, End Date, and Period Status
-    for period in periods.iter() {
+    //Print Each BonusID and their BonusName, BonusPercentage, BonusAmount, ToCustomerID, SourceCustomerID, and SourceOrderID
+    for bonus in bonuses.iter() {
         println!(
-            "Period ID: {}, Period Type: {:?}, Start Date: {}, End Date: {}, Period Status: {:?}",
-            period.period_id,
-            period.period_type,
-            period.period_start_date,
-            period.period_end_date,
-            period.period_status
+            "Bonus ID: {}, Bonus Name: {}, Bonus Percentage: {}, Bonus Amount: {}, To Customer ID: {}, Source Customer ID: {:?}, Source Order ID: {:?}",
+            bonus.bonus_id,
+            bonus.bonus_name,
+            bonus.bonus_percentage,
+            bonus.bonus_amount,
+            bonus.to_customer_id,
+            bonus.source_customer_id,
+            bonus.source_order_id
         );
-
-        //print period name
-        println!("Period Name: {}", period.period_name);
     }
 }
