@@ -254,7 +254,7 @@ fn generate_random_float_two_decimals(start: f64, end: f64) -> f64 {
 }
 
 // Return all Vectors it creates
-pub fn _generate_test_data(
+pub fn generate_test_data(
     number_of_customers: i32,
     orders_per_customer: i32,
 ) -> (

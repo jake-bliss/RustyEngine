@@ -8,7 +8,7 @@ use commission_engine::models as ce_models;
 fn main() {
     // Generate Test Data
     let (dates, company, tree, customers, orders, periods) =
-        ce_factory::_generate_test_data(100, 10);
+        ce_factory::generate_test_data(100, 10);
 
     // Find all orders that are in the first period
     // These are references to Orders so we can't mutate them
