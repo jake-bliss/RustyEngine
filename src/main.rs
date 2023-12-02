@@ -8,6 +8,30 @@ use commission_engine::models as ce_models;
 use rand::Rng;
 
 fn main() {
+    //Create a vector of 364 Date Times
+    let mut dates: Vec<chrono::NaiveDateTime> = Vec::new();
+
+    //Set the start date of Jan 1st 2023
+    let mut date = chrono::NaiveDate::from_ymd_opt(2023, 1, 1)
+        .expect("Invalid date")
+        .and_hms_opt(12, 0, 0)
+        .expect("Invalid time");
+
+    //Add all dates to the vector
+    for _i in 1..365 {
+        dates.push(date);
+
+        //Add 1 day to the date
+        date = date
+            .checked_add_signed(chrono::Duration::days(1))
+            .expect("Invalid date");
+    }
+
+    // //Print each date
+    // for date in dates.iter() {
+    //     println!("{}", date);
+    // }
+
     //Create a Company
     let company: ce_models::Company = ce_factory::create_fake_company();
 
@@ -41,7 +65,14 @@ fn main() {
 
         //Generate 1-3 orders for each customer
         for _j in 1..=Rng::gen_range(&mut rand::thread_rng(), 1..3) {
-            let order = ce_factory::create_fake_order(customer.customer_id);
+            let mut order = ce_factory::create_fake_order(customer.customer_id);
+
+            //Get a random date from the dates vector
+            let date = dates[Rng::gen_range(&mut rand::thread_rng(), 0..(dates.len() - 1))];
+
+            //Set the order date and created date to the random date
+            order.created_date = date;
+            order.order_date = date;
 
             orders.push(order);
         }
@@ -50,26 +81,26 @@ fn main() {
         customers.push(customer);
     }
 
-    // //Print Each CustomerID and their EnrollerID
-    // for customer in customers.iter() {
-    //     println!(
-    //         "Customer ID: {}, Enroller ID: {:?}",
-    //         customer.customer_id, customer.enroller_id
-    //     );
-    // }
+    //Print Each CustomerID and their EnrollerID
+    for customer in customers.iter() {
+        println!(
+            "Customer ID: {}, Enroller ID: {:?}",
+            customer.customer_id, customer.enroller_id
+        );
+    }
 
-    // //Print Each OrderID and their CustomerID
-    // for order in orders.iter() {
-    //     println!(
-    //         "Order ID: {}, Customer ID: {}",
-    //         order.order_id, order.customer_id
-    //     );
-    //     // Print Business Volume and Commissionable Volume
-    //     println!(
-    //         "Business Volume: {}, Commissionable Volume: {}",
-    //         order.business_volume_total, order.commissionable_volume_total
-    //     );
-    // }
+    //Print Each OrderID and their CustomerID
+    for order in orders.iter() {
+        println!(
+            "Order ID: {}, Customer ID: {}, Order Date: {}",
+            order.order_id, order.customer_id, order.order_date
+        );
+        // Print Business Volume and Commissionable Volume
+        println!(
+            "Business Volume: {}, Commissionable Volume: {}",
+            order.business_volume_total, order.commissionable_volume_total
+        );
+    }
 
     // Create a Vector of Periods
     let mut periods: Vec<ce_models::Period> = Vec::new();
