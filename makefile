@@ -1,0 +1,9 @@
+up-db:
+	docker run --name rustenginemysql -e MYSQL_ROOT_PASSWORD=thisisit -p 3306:3306 -v rustengine-mysql-data:/var/lib/mysql -d mysql
+
+down-db:
+	docker stop rustenginemysql
+	docker rm rustenginemysql
+
+connect-db:
+	mysql -u root -p -h 127.0.0.1 --protocol=TCP -P 3306

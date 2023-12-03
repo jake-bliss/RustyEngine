@@ -1,16 +1,19 @@
 // models.rs
 use chrono::NaiveDateTime;
+use diesel::prelude::*;
 use serde::{Deserialize, Serialize};
 use std::option::Option;
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Queryable, Selectable)]
+#[diesel(table_name = crate::schema::company)]
 pub struct Company {
     pub company_id: i32,
     pub company_name: String,
     pub tree_types: Vec<TreeType>,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone, Queryable, Selectable)]
+#[diesel(table_name = crate::schema::order)]
 pub struct Order {
     pub company_id: i32,
     pub order_id: i32,
@@ -101,7 +104,8 @@ pub struct Order {
     pub order_details: Vec<OrderDetail>,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone, Queryable, Selectable)]
+#[diesel(table_name = crate::schema::order_detail)]
 pub struct OrderDetail {
     pub order_id: i32,
     pub order_line: i32,
@@ -156,7 +160,8 @@ pub struct OrderDetail {
     pub reference1: Option<String>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Queryable, Selectable)]
+#[diesel(table_name = crate::schema::customer)]
 pub struct Customer {
     pub customer_id: i32,
     pub company_id: i32,
@@ -168,7 +173,8 @@ pub struct Customer {
     pub binary_placement_id: Option<i32>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Queryable, Selectable)]
+#[diesel(table_name = crate::schema::customer_type)]
 pub struct Tree {
     pub tree_id: i32,
     pub tree_name: String,
@@ -182,14 +188,15 @@ pub struct Tree {
     pub top_node_customer_id: i32,
 }
 
-#[derive(Debug, PartialEq, Serialize, Deserialize)]
-pub enum TreeType {
-    Unilevel,
-    Enroller,
-    Binary,
+#[derive(Debug, PartialEq, Serialize, Deserialize, Queryable, Selectable)]
+#[diesel(table_name = crate::schema::tree_type)]
+pub struct TreeType {
+    pub tree_type_id: i32,
+    pub tree_type_description: String,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Queryable, Selectable)]
+#[diesel(table_name = crate::schema::period)]
 pub struct Period {
     pub period_id: i32,
     pub period_type: PeriodType,
@@ -204,21 +211,22 @@ pub struct Period {
     pub modified_by: Option<String>,
 }
 
-#[derive(Debug, PartialEq, Serialize, Deserialize)]
-pub enum PeriodStatus {
-    Open,
-    Closed,
-    Pending,
-    Cancelled,
+#[derive(Debug, PartialEq, Serialize, Deserialize, Queryable, Selectable)]
+#[diesel(table_name = crate::schema::period_status)]
+pub struct PeriodStatus {
+    pub period_status_id: i32,
+    pub period_status_description: String,
 }
 
-#[derive(Debug, PartialEq, Serialize, Deserialize)]
-pub enum PeriodType {
-    Weekly,
-    Monthly,
+#[derive(Debug, PartialEq, Serialize, Deserialize, Queryable, Selectable)]
+#[diesel(table_name = crate::schema::period_type)]
+pub struct PeriodType {
+    pub period_type_id: i32,
+    pub period_type_description: String,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Queryable, Selectable)]
+#[diesel(table_name = crate::schema::order_status)]
 pub struct Bonus {
     pub bonus_id: i32,
     pub bonus_name: String,
