@@ -7,3 +7,9 @@ down-db:
 
 connect-db:
 	mysql -u root -p -h 127.0.0.1 --protocol=TCP -P 3306
+
+createtables-db:
+	mysql -u root -p -h 127.0.0.1 --protocol=TCP -P 3306 < create-script.sql
+
+droptables-db:
+	mysql -u root -p -h 127.0.0.1 --protocol=TCP -P 3306 < drop-script.sql

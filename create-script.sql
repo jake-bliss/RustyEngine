@@ -1,10 +1,11 @@
 -- Your SQL goes here
+USE rustenginemysql;
+
 CREATE TABLE TreeType
 (
     tree_type_id INT PRIMARY KEY,
     type_description VARCHAR(255)
 );
-
 
 CREATE TABLE PeriodStatus
 (
@@ -18,60 +19,37 @@ CREATE TABLE PeriodType
     type_description VARCHAR(255)
 );
 
-CREATE TABLE Period
-(
-    period_id INT PRIMARY KEY,
-    period_type_id INT,
-    period_name VARCHAR(255),
-    period_start_date DATE,
-    period_end_date DATE,
-    period_status_id INT,
-    company_id INT,
-    created_date DATE,
-    modified_date DATE,
-    created_by VARCHAR(255),
-    modified_by VARCHAR(255),
-    FOREIGN KEY (period_type_id) REFERENCES PeriodType (period_type_id),
-    FOREIGN KEY (period_status_id) REFERENCES PeriodStatus (period_status_id),
-    FOREIGN KEY (company_id) REFERENCES Company (company_id),
-);
-
 CREATE TABLE Company
 (
     company_id INT PRIMARY KEY,
     company_name VARCHAR(255)
 );
 
-CREATE TABLE Tree
+CREATE TABLE Period
 (
-    tree_id INTEGER PRIMARY KEY,
-    tree_name VARCHAR
+    period_id INT PRIMARY KEY,
+    period_type_id INT,
+    period_name VARCHAR
 (255),
-    tree_type_id INT,
-    FOREIGN KEY
-(tree_type_id) REFERENCES Category
-(id),
-    FOREIGN KEY
-(category_id) REFERENCES Category
-(id),
-    FOREIGN KEY
-(tree_type_id) REFERENCES Category
-(id),
-    is_active BOOLEAN,
+    period_start_date DATE,
+    period_end_date DATE,
+    period_status_id INT,
+    company_id INT,
     created_date DATE,
     modified_date DATE,
     created_by VARCHAR
 (255),
-    top_node_custom_id INT,
-    FOREIGN KEY (top_node_custom_id) REFERENCES Customer (customer_id)
-);
-
-CREATE TABLE CompanyTree
-(
-    company_id INT,
-    tree_id INT,
-    FOREIGN KEY (company_id) REFERENCES Company (company_id),
-    FOREIGN KEY (tree_id) REFERENCES Tree (tree_id)
+    modified_by VARCHAR
+(255),
+    FOREIGN KEY
+(period_type_id) REFERENCES PeriodType
+(period_type_id),
+    FOREIGN KEY
+(period_status_id) REFERENCES PeriodStatus
+(period_status_id),
+    FOREIGN KEY
+(company_id) REFERENCES Company
+(company_id)
 );
 
 CREATE TABLE Customer
@@ -90,7 +68,34 @@ CREATE TABLE Customer
     FOREIGN KEY (binary_placement_id) REFERENCES Customer (customer_id)
 );
 
-CREATE TABLE "Order"
+CREATE TABLE Tree
+(
+    tree_id INTEGER PRIMARY KEY,
+    tree_name VARCHAR
+(255),
+    tree_type_id INT,
+    FOREIGN KEY
+(tree_type_id) REFERENCES TreeType (tree_type_id),
+    is_active BOOLEAN,
+    created_date DATE,
+    modified_date DATE,
+    created_by VARCHAR
+    (255),
+    top_node_customer_id INT,
+    FOREIGN KEY
+    (top_node_customer_id) REFERENCES Customer
+    (customer_id)
+);
+
+CREATE TABLE CompanyTree
+(
+    company_id INT,
+    tree_id INT,
+    FOREIGN KEY (company_id) REFERENCES Company (company_id),
+    FOREIGN KEY (tree_id) REFERENCES Tree (tree_id)
+);
+
+CREATE TABLE Orders
 (
     order_id INT PRIMARY KEY,
     company_id INT,
@@ -235,5 +240,5 @@ CREATE TABLE OrderDetail
     manual_tax FLOAT,
     is_state_tax_override BOOLEAN,
     reference1 VARCHAR(255),
-    FOREIGN KEY (order_id) REFERENCES "Order" (order_id)
+    FOREIGN KEY (order_id) REFERENCES Orders (order_id)
 );
