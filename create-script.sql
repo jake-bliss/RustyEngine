@@ -242,3 +242,25 @@ CREATE TABLE OrderDetail
     reference1 VARCHAR(255),
     FOREIGN KEY (order_id) REFERENCES Orders (order_id)
 );
+
+--Insert 3 rows into the TreeType table
+INSERT INTO TreeType
+    (tree_type_id, type_description)
+VALUES
+    (1, 'Enroller'),
+    (2, 'Unilevel'),
+    (3, 'Binary');
+
+--Insert 2 rows into the PeriodStatus table
+INSERT INTO PeriodStatus
+    (period_status_id, status_description)
+VALUES
+    (1, 'Open'),
+    (2, 'Closed');
+
+--Insert 2 rows into the PeriodType table
+INSERT INTO PeriodType
+    (period_type_id, type_description)
+VALUES
+    (1, 'Monthly'),
+    (2, 'Weekly');

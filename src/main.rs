@@ -1,14 +1,11 @@
 // main.rs
+mod database;
 mod factory;
 mod models;
 
+// use commission_engine::database as ce_database;
 use commission_engine::factory as ce_factory;
 use commission_engine::models as ce_models;
-
-extern crate diesel;
-use self::diesel::prelude::*;
-use self::diesel_demo::*;
-use self::models::*;
 
 fn main() {
     // Generate Test Data
