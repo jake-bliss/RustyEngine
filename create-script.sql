@@ -243,6 +243,20 @@ CREATE TABLE OrderDetail
     FOREIGN KEY (order_id) REFERENCES Orders (order_id)
 );
 
+CREATE TABLE Bonus
+(
+    bonus_id INT PRIMARY KEY,
+    bonus_name VARCHAR(255),
+    bonus_percentage FLOAT,
+    bonus_amount FLOAT,
+    to_customer_id INT,
+    source_customer_id INT,
+    source_order_id INT,
+    FOREIGN KEY (to_customer_id) REFERENCES Customer (customer_id),
+    FOREIGN KEY (source_customer_id) REFERENCES Customer (customer_id),
+    FOREIGN KEY (source_order_id) REFERENCES Orders (order_id)
+);
+
 INSERT INTO TreeType
     (tree_type_id, type_description)
 VALUES

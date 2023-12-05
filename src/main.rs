@@ -77,5 +77,7 @@ fn main() {
     //     );
     // }
 
-    ce_database::get_periods();
+    let result = ce_database::get_period_statuses();
+
+    println!("{:#?}", result);
 }
