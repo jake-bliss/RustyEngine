@@ -227,17 +227,17 @@ pub fn create_fake_period(
     start_date: NaiveDateTime,
     end_date: NaiveDateTime,
     period_id: i32,
-    period_type: i32,
+    period_type_id: i32,
 ) -> ce_models::Period {
     let now = Local::now();
 
     ce_models::Period {
         period_id: period_id,
-        period_type: period_type,
+        period_type_id: period_type_id,
         period_name: start_date.format("%B %Y").to_string(),
         period_start_date: start_date,
         period_end_date: end_date,
-        period_status: 1,
+        period_status_id: 1,
         company_id: 1,
         created_date: now.naive_local(),
         modified_date: now.naive_local(),

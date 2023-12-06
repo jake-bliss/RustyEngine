@@ -191,11 +191,11 @@ pub struct TreeType {
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Period {
     pub period_id: i32,
-    pub period_type: i32,
+    pub period_type_id: i32,
     pub period_name: String,
     pub period_start_date: NaiveDateTime,
     pub period_end_date: NaiveDateTime,
-    pub period_status: i32,
+    pub period_status_id: i32,
     pub company_id: i32,
     pub created_date: NaiveDateTime,
     pub modified_date: NaiveDateTime,

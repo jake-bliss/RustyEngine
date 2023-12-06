@@ -35,4 +35,31 @@ mod customer_tests {
         assert_eq!(period_types[1].period_type_id, 2);
         assert_eq!(period_types[1].period_type_description, "Weekly");
     }
+
+    #[test]
+
+    fn test_tree_types() {
+        let result = ce_database::get_tree_types();
+
+        assert!(result.is_ok());
+
+        let tree_types = result.unwrap();
+
+        assert_eq!(tree_types[0].tree_type_id, 1);
+        assert_eq!(tree_types[0].tree_type_description, "Enroller");
+
+        assert_eq!(tree_types[1].tree_type_id, 2);
+        assert_eq!(tree_types[1].tree_type_description, "Unilevel");
+
+        assert_eq!(tree_types[2].tree_type_id, 3);
+        assert_eq!(tree_types[2].tree_type_description, "Binary");
+    }
+
+    #[test]
+
+    fn test_get_periods() {
+        let result = ce_database::get_periods();
+
+        assert!(result.is_ok());
+
 }

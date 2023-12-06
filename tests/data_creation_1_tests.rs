@@ -110,9 +110,9 @@ mod data_creation_1_tests {
         );
 
         assert_eq!(period.period_id, 1);
-        assert_eq!(period.period_type, ce_models::PeriodType::Monthly);
+        assert_eq!(period.period_type_id, ce_models::PeriodType::Monthly);
         assert_eq!(period.period_name, "Main".to_string());
         assert_eq!(period.company_id, 1);
-        assert_eq!(period.period_status, ce_models::PeriodStatus::Open);
+        assert_eq!(period.period_status_id, ce_models::PeriodStatus::Open);
     }
 }
