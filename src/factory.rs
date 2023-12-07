@@ -194,7 +194,7 @@ pub fn create_fake_customer() -> ce_models::Customer {
 pub fn create_fake_tree(company_id: i32) -> ce_models::Tree {
     ce_models::Tree {
         tree_id: Rng::gen_range(&mut rand::thread_rng(), 1..1000),
-        tree_type: 2,
+        tree_type_id: 2,
         tree_name: "Main".to_string(),
         company_id: company_id,
         is_active: true,
@@ -364,6 +364,14 @@ pub fn generate_test_data(
         let period = ce_factory::create_fake_period(start_date, end_date, i_32, 1);
 
         periods.push(period);
+    }
+
+    //Print periods
+    for period in periods.iter() {
+        println!(
+            "Period ID: {}, Period Name: {}, Start Date: {}, End Date: {}",
+            period.period_id, period.period_name, period.period_start_date, period.period_end_date
+        );
     }
 
     //Return all Vectors

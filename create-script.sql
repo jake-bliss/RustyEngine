@@ -76,10 +76,15 @@ CREATE TABLE Tree
     tree_type_id INT,
     FOREIGN KEY
 (tree_type_id) REFERENCES TreeType (tree_type_id),
+    company_id INT,
+    FOREIGN KEY
+(company_id) REFERENCES Company (company_id),
     is_active BOOLEAN,
     created_date DATETIME,
     modified_date DATETIME,
     created_by VARCHAR
+    (255),
+    modified_by VARCHAR
     (255),
     top_node_customer_id INT,
     FOREIGN KEY
@@ -277,3 +282,41 @@ INSERT INTO PeriodType
 VALUES
     (1, 'Monthly'),
     (2, 'Weekly');
+
+
+-- Insert 1 row into the Company table
+INSERT INTO Company
+    (company_id, company_name)
+VALUES
+    (1, 'Rust Engine');
+
+-- Insert 12 rows into period table
+
+INSERT INTO Period
+    (period_id, period_type_id, period_name, period_start_date, period_end_date, period_status_id, company_id, created_date, modified_date, created_by, modified_by)
+VALUES
+    (1, 1, 'January 2023', '2023-01-01 12:00:00', '2023-01-31 11:59:59', 1, 1, '2023-01-01 12:00:00', '2023-01-01 12:00:00', 'System', 'System'),
+    (2, 1, 'February 2023', '2023-02-01 12:00:00', '2023-02-28 11:59:59', 1, 1, '2023-02-01 12:00:00', '2023-02-01 12:00:00', 'System', 'System'),
+    (3, 1, 'March 2023', '2023-03-01 12:00:00', '2023-03-31 11:59:59', 1, 1, '2023-03-01 12:00:00', '2023-03-01 12:00:00', 'System', 'System'),
+    (4, 1, 'April 2023', '2023-04-01 12:00:00', '2023-04-30 11:59:59', 1, 1, '2023-04-01 12:00:00', '2023-04-01 12:00:00', 'System', 'System'),
+    (5, 1, 'May 2023', '2023-05-01 12:00:00', '2023-05-31 11:59:59', 1, 1, '2023-05-01 12:00:00', '2023-05-01 12:00:00', 'System', 'System'),
+    (6, 1, 'June 2023', '2023-06-01 12:00:00', '2023-06-30 11:59:59', 1, 1, '2023-06-01 12:00:00', '2023-06-01 12:00:00', 'System', 'System'),
+    (7, 1, 'July 2023', '2023-07-01 12:00:00', '2023-07-31 11:59:59', 1, 1, '2023-07-01 12:00:00', '2023-07-01 12:00:00', 'System', 'System'),
+    (8, 1, 'August 2023', '2023-08-01 12:00:00', '2023-08-31 11:59:59', 1, 1, '2023-08-01 12:00:00', '2023-08-01 12:00:00', 'System', 'System'),
+    (9, 1, 'September 2023', '2023-09-01 12:00:00', '2023-09-30 11:59:59', 1, 1, '2023-09-01 12:00:00', '2023-09-01 12:00:00', 'System', 'System'),
+    (10, 1, 'October 2023', '2023-10-01 12:00:00', '2023-10-31 11:59:59', 1, 1, '2023-10-01 12:00:00', '2023-10-01 12:00:00', 'System', 'System'),
+    (11, 1, 'November 2023', '2023-11-01 12:00:00', '2023-11-30 11:59:59', 1, 1, '2023-11-01 12:00:00', '2023-11-01 12:00:00', 'System', 'System'),
+    (12, 1, 'December 2023', '2023-12-01 12:00:00', '2023-12-31 11:59:59', 1, 1, '2023-12-01 12:00:00', '2023-12-01 12:00:00', 'System', 'System');
+
+
+-- Insert 1 row into the order table
+INSERT INTO Orders
+    (order_id, company_id, customer_id, order_status_id, order_date, currency_code, warehouse_id, ship_method_id, order_type_id, price_type_id, first_name, middle_name, last_name, name_suffix, company, address1, address2, address3, city, state, zip, country, county, email, phone, notes, total, sub_total, tax_total, shipping_total, discount_total, discount_percent, weight_total, business_volume_total, commissionable_volume_total, other1_total, other2_total, other3_total, other4_total, other5_total, other6_total, other7_total, other8_total, other9_total, other10_total, shipping_tax, order_tax, fed_tax_total, state_tax_total, fed_shipping_tax, state_shipping_tax, city_shipping_tax, city_local_shipping_tax, county_shipping_tax, county_local_shipping_tax, other11, other12, other13, other14, other15, other16, other17, other18, other19, other20, is_commissionable, auto_order_id, return_order_id, replacement_order_id, parent_order_id, decline_count, transfer_to_customer_id, party_id, shipped_date, created_date, locked_date, modified_date, created_by, modified_by, tax_integration_calculate, tax_integration_commit, handling_fee, pickup_name, total_taxable, order_sub_status_id, referral_id)
+VALUES
+    (1, 1, 1, 1, '2023-01-01 12:00:00', 'USD', 1, 1, 1, 1, 'John', 'A', 'Doe', 'Jr', 'Rust Engine', '123 Main St', 'Suite 100', 'Building 5', 'Anytown', 'TX', '12345', 'USA', 'Any County', 'john.doe@example.com', '123-456-7890', 'Test Order', 100.00, 90.00, 5.0, 5.0, 10.0, 10.0, 2.5, 50.00, 50.00, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.5, 1.5, 0.5, 1.0, 0.25, 0.25, 0.10, 0.10, 0.05, 0.05, 'Extra Note 1', 'Extra Note 2', 'Extra Note 3', 'Extra Note 4', 'Extra Note 5', 'Extra Note 6', 'Extra Note 7', 'Extra Note 8', 'Extra Note 9', 'Extra Note 10', TRUE, 2, 3, 4, 5, 0, 6, 7, '2023-01-02 10:00:00', '2023-01-01 09:00:00', '2023-01-01 11:00:00', '2023-01-02 08:00:00', 'admin', 'user', TRUE, TRUE, 2.0, 'Pickup Location', 85.00, 1, 123);
+
+-- Insert 2 rows into the order detail table
+INSERT INTO OrderDetail
+    (order_id, order_line, order_detail_id, parent_order_detail_id, item_id, item_code, item_description, quantity, price_each, price_total, tax, weight_each, weight, business_volume_each, business_volume, commissionable_volume_each, commissionable_volume, other1_each, other1, other2_each, other2, other3_each, other3, other4_each, other4, other5_each, other5, original_taxable_each, original_business_volume_each, original_commissionable_volume_each, other6_each, other6, other7_each, other7, other8_each, other8, other9_each, other9, other10_each, other10, parent_item_id, taxable, fed_tax, state_tax, city_tax, city_local_tax, county_tax, county_local_tax, manual_tax, is_state_tax_override, reference1)
+VALUES
+    (1, 1, 1, 0, 1, 'SKU-1', 'Product 1', 1, 10.00, 10.00, 0.00, 1.00, 1.00, 10.00, 10.00, 1.00, 1.00, 1.00, 1.00, 1.00, 1.00, 1.00, 1.00, 1.00, 1.00, 1.00, 1.00, 1.00, 1.00, 1.00, 1.00, 1.00, 1.00, 1.00, 1.00, 1.00, 1.00, 1.00, 1.00, 1.00, 1, 1.00, 1.00, 1.00, 1.00, 1.00, 1.00, 1.00, 1, 'Ref1')

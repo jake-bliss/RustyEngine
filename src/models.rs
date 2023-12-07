@@ -172,7 +172,7 @@ pub struct Customer {
 pub struct Tree {
     pub tree_id: i32,
     pub tree_name: String,
-    pub tree_type: i32,
+    pub tree_type_id: i32,
     pub company_id: i32,
     pub is_active: bool,
     pub created_date: NaiveDateTime,

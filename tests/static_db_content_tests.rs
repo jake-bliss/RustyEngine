@@ -62,4 +62,34 @@ mod customer_tests {
 
         assert!(result.is_ok());
 
+        //Unwrap the result
+        let periods = result.unwrap();
+
+        //Assert that the first period is correct
+        assert_eq!(periods[0].period_id, 1);
+        assert_eq!(periods[0].period_type_id, 1);
+        assert_eq!(periods[0].period_status_id, 1);
+        assert_eq!(periods[0].company_id, 1);
+    }
+
+    #[test]
+
+    fn test_get_trees() {
+        let result = ce_database::get_trees();
+
+        assert!(result.is_ok());
+
+        //Unwrap the result
+        let trees = result.unwrap();
+
+        //Assert that the first tree is correct
+        assert_eq!(trees[0].tree_id, 1);
+        assert_eq!(trees[0].tree_name, "Enroller Tree");
+        assert_eq!(trees[0].tree_type_id, 1);
+        assert_eq!(trees[0].company_id, 1);
+        assert_eq!(trees[0].is_active, true);
+        assert_eq!(trees[0].created_by, "System");
+        assert_eq!(trees[0].modified_by, None);
+        assert_eq!(trees[0].top_node_customer_id, 1);
+    }
 }

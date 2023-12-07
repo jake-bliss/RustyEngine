@@ -25,7 +25,7 @@ fn main() {
     //     })
     //     .collect();
 
-    // //Print Each order in the first period and their OrderID, CustomerID, and Order Date
+    //Print Each order in the first period and their OrderID, CustomerID, and Order Date
     // for order in orders_in_period.iter() {
     //     println!(
     //         "Order ID: {}, Customer ID: {}, Order Date: {}",
@@ -63,7 +63,7 @@ fn main() {
     //     }
     // }
 
-    // //Print Each BonusID and their BonusName, BonusPercentage, BonusAmount, ToCustomerID, SourceCustomerID, and SourceOrderID
+    //Print Each BonusID and their BonusName, BonusPercentage, BonusAmount, ToCustomerID, SourceCustomerID, and SourceOrderID
     // for bonus in bonuses.iter() {
     //     println!(
     //         "Bonus ID: {}, Bonus Name: {}, Bonus Percentage: {}, Bonus Amount: {}, To Customer ID: {}, Source Customer ID: {:?}, Source Order ID: {:?}",
@@ -77,7 +77,11 @@ fn main() {
     //     );
     // }
 
-    let result = ce_database::get_period_statuses();
+    // let result = ce_database::get_period_statuses();
+
+    // println!("{:#?}", result);
+
+    let result = ce_database::get_orders();
 
     println!("{:#?}", result);
 }
