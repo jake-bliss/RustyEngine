@@ -7,8 +7,11 @@ mod models;
 use commission_engine::database as ce_database;
 use commission_engine::factory as ce_factory;
 use commission_engine::models as ce_models;
+use futures::TryFutureExt;
+use tokio::runtime::Runtime;
 
-fn main() {
+#[tokio::main(flavor = "current_thread")]
+async fn main() {
     // Generate Test Data
     // let (dates, company, tree, customers, orders, periods) =
     //     ce_factory::generate_test_data(100, 10);
@@ -81,7 +84,6 @@ fn main() {
 
     // println!("{:#?}", result);
 
-    let result = ce_database::get_orders();
-
+    let result = ce_database::get_orders().await;
     println!("{:#?}", result);
 }
