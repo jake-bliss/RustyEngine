@@ -84,6 +84,12 @@ async fn main() {
 
     // println!("{:#?}", result);
 
-    let result = ce_database::get_orders().await;
-    println!("{:#?}", result);
+    // let period = ce_database::get_periods(Some(12)).await;
+    // println!("{:#?}", period);
+
+    // let result = ce_database::get_orders().await;
+    // println!("{:#?}", result);
+
+    let orders = ce_database::get_orders_in_period(1).await;
+    println!("{:#?}", orders);
 }

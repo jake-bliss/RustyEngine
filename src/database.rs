@@ -1,8 +1,11 @@
 use super::models as ce_models;
+use crate::models::Period;
+use chrono::NaiveTime;
 use chrono::{NaiveDate, NaiveDateTime};
 use faker_rand::en_us::company;
 use futures::future::join_all;
 use sqlx::mysql::MySqlPool;
+use sqlx::types::time::Date;
 use sqlx::types::time::PrimitiveDateTime;
 use std::env;
 use std::option::Option; // Add this import at the top
@@ -79,13 +82,12 @@ pub async fn get_tree_types() -> Result<Vec<ce_models::TreeType>, Box<dyn std::e
     Ok(tree_types)
 }
 
-pub async fn get_periods() -> Result<Vec<ce_models::Period>, Box<dyn std::error::Error>> {
+pub async fn get_periods(
+    period_id: Option<i32>,
+) -> Result<Vec<ce_models::Period>, Box<dyn std::error::Error>> {
     dotenv::dotenv().ok();
 
     let pool = MySqlPool::connect(&env::var("DATABASE_URL")?).await?;
-
-    //print pool
-    println!("{:#?}", pool);
 
     //Get the periods
     let periods = sqlx::query!("SELECT * FROM Period;",)
@@ -114,6 +116,14 @@ pub async fn get_periods() -> Result<Vec<ce_models::Period>, Box<dyn std::error:
         })
         .fetch_all(&pool)
         .await?;
+
+    //If the PeriodID is specified, filter the periods
+    if let Some(period_id) = period_id {
+        return Ok(periods
+            .into_iter()
+            .filter(|period| period.period_id == period_id)
+            .collect());
+    }
 
     //Return the periods
     Ok(periods)
@@ -345,7 +355,154 @@ pub async fn get_orders() -> Result<Vec<ce_models::Order>, Box<dyn std::error::E
 
     //Return the orders
 
-    // ...
+    let orders: Vec<ce_models::Order> = join_all(orders).await.into_iter().collect();
+
+    Ok(orders)
+}
+
+pub async fn get_orders_in_period(
+    period_id: i32,
+) -> Result<Vec<ce_models::Order>, Box<dyn std::error::Error>> {
+    dotenv::dotenv().ok();
+
+    let period = get_periods(Some(period_id)).await?;
+
+    // If vec is not empty, get the first element
+    let period = if !period.is_empty() {
+        period.first().unwrap()
+    } else {
+        // If vec is empty, return an error and exit
+        return Err(Box::new(std::io::Error::new(
+            std::io::ErrorKind::Other,
+            "Period not found",
+        )));
+    };
+
+    // Get start and end dates for the period
+    let start_date = period.period_start_date;
+    let end_date = period.period_end_date;
+
+    // Convert start and end dates to strings with time
+    let start_date = start_date.format("%Y-%m-%d %H:%M:%S").to_string();
+    let end_date = end_date.format("%Y-%m-%d %H:%M:%S").to_string();
+
+    let pool = MySqlPool::connect(&env::var("DATABASE_URL")?).await?;
+
+    //Get the orders
+    let orders = sqlx::query!(
+        "SELECT * FROM Orders WHERE order_date >= ? AND order_date <= ?;",
+        start_date,
+        end_date
+    )
+    .map(|row| {
+        Box::pin(async move {
+            let order_date = row.order_date.map(convert_to_naive_date_time).unwrap();
+            let shipped_date: Option<NaiveDateTime> =
+                row.shipped_date.map(convert_to_naive_date_time);
+            let created_date = row.created_date.map(convert_to_naive_date_time).unwrap();
+            let locked_date: Option<NaiveDateTime> =
+                row.locked_date.map(convert_to_naive_date_time);
+            let modified_date = row.modified_date.map(convert_to_naive_date_time).unwrap();
+
+            //Get OrderDetails for the order
+
+            let order_details = get_order_details(row.order_id).await;
+
+            ce_models::Order {
+                order_id: row.order_id,
+                company_id: row.company_id.unwrap(),
+                order_date,
+                customer_id: row.customer_id.unwrap(),
+                order_status_id: row.order_status_id.unwrap(),
+                currency_code: row.currency_code.unwrap_or_default(),
+                warehouse_id: row.warehouse_id.unwrap(),
+                ship_method_id: row.ship_method_id.unwrap(),
+                order_type_id: row.order_type_id.unwrap(),
+                price_type_id: row.price_type_id.unwrap(),
+                first_name: row.first_name.unwrap_or_default(),
+                middle_name: row.middle_name,
+                last_name: row.last_name.unwrap_or_default(),
+                name_suffix: row.name_suffix,
+                company: row.company,
+                address1: row.address1.unwrap_or_default(),
+                address2: row.address2,
+                address3: row.address3,
+                city: row.city.unwrap_or_default(),
+                state: row.state.unwrap_or_default(),
+                zip: row.zip.unwrap_or_default(),
+                country: row.country.unwrap_or_default(),
+                county: row.county,
+                email: row.email,
+                phone: row.phone,
+                notes: row.notes,
+                total: f64::from(row.total.unwrap()),
+                sub_total: f64::from(row.sub_total.unwrap()),
+                tax_total: f64::from(row.tax_total.unwrap()),
+                shipping_total: f64::from(row.shipping_total.unwrap()),
+                discount_total: f64::from(row.discount_total.unwrap()),
+                discount_percent: f64::from(row.discount_percent.unwrap()),
+                weight_total: f64::from(row.weight_total.unwrap()),
+                business_volume_total: f64::from(row.business_volume_total.unwrap()),
+                commissionable_volume_total: f64::from(row.commissionable_volume_total.unwrap()),
+                other1_total: Some(row.other1_total.unwrap_or_default() as f64),
+                other2_total: Some(row.other2_total.unwrap_or_default() as f64),
+                other3_total: Some(row.other3_total.unwrap_or_default() as f64),
+                other4_total: Some(row.other4_total.unwrap_or_default() as f64),
+                other5_total: Some(row.other5_total.unwrap_or_default() as f64),
+                other6_total: Some(row.other6_total.unwrap_or_default() as f64),
+                other7_total: Some(row.other7_total.unwrap_or_default() as f64),
+                other8_total: Some(row.other8_total.unwrap_or_default() as f64),
+                other9_total: Some(row.other9_total.unwrap_or_default() as f64),
+                other10_total: Some(row.other10_total.unwrap_or_default() as f64),
+                shipping_tax: f64::from(row.shipping_tax.unwrap()),
+                order_tax: f64::from(row.order_tax.unwrap()),
+                fed_tax_total: f64::from(row.fed_tax_total.unwrap()),
+                state_tax_total: f64::from(row.state_tax_total.unwrap()),
+                fed_shipping_tax: f64::from(row.fed_shipping_tax.unwrap()),
+                state_shipping_tax: f64::from(row.state_shipping_tax.unwrap()),
+                city_shipping_tax: f64::from(row.city_shipping_tax.unwrap()),
+                city_local_shipping_tax: f64::from(row.city_local_shipping_tax.unwrap()),
+                county_shipping_tax: f64::from(row.county_shipping_tax.unwrap()),
+                county_local_shipping_tax: f64::from(row.county_local_shipping_tax.unwrap()),
+                other11: row.other11,
+                other12: row.other12,
+                other13: row.other13,
+                other14: row.other14,
+                other15: row.other15,
+                other16: row.other16,
+                other17: row.other17,
+                other18: row.other18,
+                other19: row.other19,
+                other20: row.other20,
+                is_commissionable: row.is_commissionable.unwrap_or(0) != 0,
+                auto_order_id: row.auto_order_id,
+                return_order_id: row.return_order_id,
+                replacement_order_id: row.replacement_order_id,
+                parent_order_id: row.parent_order_id,
+                decline_count: row.decline_count,
+                transfer_to_customer_id: row.transfer_to_customer_id,
+                party_id: row.party_id,
+                shipped_date,
+                created_date,
+                locked_date,
+                modified_date,
+                created_by: row.created_by.unwrap_or_default(),
+                modified_by: row.modified_by,
+                tax_integration_calculate: Some(row.tax_integration_calculate.unwrap_or(0) != 0),
+                tax_integration_commit: Some(row.tax_integration_commit.unwrap_or(0) != 0),
+                handling_fee: Some(f64::from(row.handling_fee.unwrap() as f64)),
+                pickup_name: row.pickup_name,
+                total_taxable: f64::from(row.total_taxable.unwrap() as f64),
+                order_sub_status_id: row.order_sub_status_id,
+                referral_id: row.referral_id,
+                order_details: order_details.unwrap(),
+            }
+        })
+    })
+    .fetch_all(&pool)
+    .await?;
+
+    //Return the orders
 
     let orders: Vec<ce_models::Order> = join_all(orders).await.into_iter().collect();
 
