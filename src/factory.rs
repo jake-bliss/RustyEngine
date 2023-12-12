@@ -14,7 +14,7 @@ pub fn create_fake_order(customer_id: i32) -> ce_models::Order {
     let order_id = Rng::gen_range(&mut rand::thread_rng(), 1..1000);
 
     ce_models::Order {
-        company_id: Rng::gen_range(&mut rand::thread_rng(), 1..10),
+        company_id: 1,
         order_id: order_id,
         customer_id: customer_id,
         order_status_id: Rng::gen_range(&mut rand::thread_rng(), 1..1000),
@@ -181,7 +181,7 @@ pub fn create_fake_order_detail(order_id: i32, order_line: i32) -> ce_models::Or
 pub fn create_fake_customer() -> ce_models::Customer {
     ce_models::Customer {
         customer_id: Rng::gen_range(&mut rand::thread_rng(), 1..10),
-        company_id: Rng::gen_range(&mut rand::thread_rng(), 1..10),
+        company_id: 1,
         customer_type_id: Rng::gen_range(&mut rand::thread_rng(), 1..10),
         customer_status_id: Rng::gen_range(&mut rand::thread_rng(), 1..10),
         customer_sub_status_id: None,
@@ -194,7 +194,7 @@ pub fn create_fake_customer() -> ce_models::Customer {
 pub fn create_fake_tree(company_id: i32) -> ce_models::Tree {
     ce_models::Tree {
         tree_id: Rng::gen_range(&mut rand::thread_rng(), 1..1000),
-        tree_type: 2,
+        tree_type_id: 2,
         tree_name: "Main".to_string(),
         company_id: company_id,
         is_active: true,
@@ -227,17 +227,17 @@ pub fn create_fake_period(
     start_date: NaiveDateTime,
     end_date: NaiveDateTime,
     period_id: i32,
-    period_type: i32,
+    period_type_id: i32,
 ) -> ce_models::Period {
     let now = Local::now();
 
     ce_models::Period {
         period_id: period_id,
-        period_type: period_type,
+        period_type_id: period_type_id,
         period_name: start_date.format("%B %Y").to_string(),
         period_start_date: start_date,
         period_end_date: end_date,
-        period_status: 1,
+        period_status_id: 1,
         company_id: 1,
         created_date: now.naive_local(),
         modified_date: now.naive_local(),
@@ -330,8 +330,10 @@ pub fn generate_test_data(
         customers.push(customer);
     }
 
-    //Set Tree Top Node Customer ID
-    tree.top_node_customer_id = customers.first().unwrap().customer_id;
+    // Set Tree Top Node Customer ID
+    if let Some(first_customer) = customers.first() {
+        tree.top_node_customer_id = first_customer.customer_id;
+    }
 
     // Create a Vector of Periods
     let mut periods: Vec<ce_models::Period> = Vec::new();
@@ -365,6 +367,14 @@ pub fn generate_test_data(
 
         periods.push(period);
     }
+
+    //Print periods
+    // for period in periods.iter() {
+    //     println!(
+    //         "Period ID: {}, Period Name: {}, Start Date: {}, End Date: {}",
+    //         period.period_id, period.period_name, period.period_start_date, period.period_end_date
+    //     );
+    // }
 
     //Return all Vectors
     (dates, company, tree, customers, orders, periods)

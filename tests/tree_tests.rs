@@ -8,7 +8,7 @@ mod tree_tests {
     fn test_tree_creation() {
         let tree = Tree {
             tree_id: 1,
-            tree_type: TreeType::Unilevel,
+            tree_type_id: TreeType::Unilevel,
             tree_name: "Main".to_string(),
             company_id: 1,
             is_active: true,
@@ -26,7 +26,7 @@ mod tree_tests {
         };
 
         assert_eq!(tree.tree_id, 1);
-        assert_eq!(tree.tree_type, TreeType::Unilevel);
+        assert_eq!(tree.tree_type_id, TreeType::Unilevel);
         assert_eq!(tree.tree_name, "Main".to_string());
         assert_eq!(tree.company_id, 1);
         assert_eq!(tree.is_active, true);

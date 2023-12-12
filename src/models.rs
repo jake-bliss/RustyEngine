@@ -1,7 +1,7 @@
 // models.rs
 use chrono::NaiveDateTime;
 use serde::{Deserialize, Serialize};
-use std::option::Option;
+use std::{clone, option::Option};
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Company {
@@ -156,7 +156,7 @@ pub struct OrderDetail {
     pub reference1: Option<String>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Customer {
     pub customer_id: i32,
     pub company_id: i32,
@@ -172,7 +172,7 @@ pub struct Customer {
 pub struct Tree {
     pub tree_id: i32,
     pub tree_name: String,
-    pub tree_type: i32,
+    pub tree_type_id: i32,
     pub company_id: i32,
     pub is_active: bool,
     pub created_date: NaiveDateTime,
@@ -191,11 +191,11 @@ pub struct TreeType {
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Period {
     pub period_id: i32,
-    pub period_type: i32,
+    pub period_type_id: i32,
     pub period_name: String,
     pub period_start_date: NaiveDateTime,
     pub period_end_date: NaiveDateTime,
-    pub period_status: i32,
+    pub period_status_id: i32,
     pub company_id: i32,
     pub created_date: NaiveDateTime,
     pub modified_date: NaiveDateTime,
