@@ -12,7 +12,7 @@ use tokio::runtime::Runtime;
 
 #[tokio::main(flavor = "current_thread")]
 async fn main() {
-    // Generate Test Data
+    //Generate Test Data
     // let (dates, company, tree, customers, orders, periods) =
     //     ce_factory::generate_test_data(100, 10);
 
@@ -28,7 +28,7 @@ async fn main() {
     //     })
     //     .collect();
 
-    //Print Each order in the first period and their OrderID, CustomerID, and Order Date
+    // //Print Each order in the first period and their OrderID, CustomerID, and Order Date
     // for order in orders_in_period.iter() {
     //     println!(
     //         "Order ID: {}, Customer ID: {}, Order Date: {}",
@@ -66,7 +66,7 @@ async fn main() {
     //     }
     // }
 
-    //Print Each BonusID and their BonusName, BonusPercentage, BonusAmount, ToCustomerID, SourceCustomerID, and SourceOrderID
+    // //Print Each BonusID and their BonusName, BonusPercentage, BonusAmount, ToCustomerID, SourceCustomerID, and SourceOrderID
     // for bonus in bonuses.iter() {
     //     println!(
     //         "Bonus ID: {}, Bonus Name: {}, Bonus Percentage: {}, Bonus Amount: {}, To Customer ID: {}, Source Customer ID: {:?}, Source Order ID: {:?}",
@@ -89,6 +89,22 @@ async fn main() {
 
     // let result = ce_database::get_orders().await;
     // println!("{:#?}", result);
+
+    //Generate Test Data
+    let (dates, company, tree, customers, orders, periods) = ce_factory::generate_test_data(3, 3);
+
+    // Iterate over Customers and create them in the database
+    for customer in customers.iter() {
+        let result = ce_database::create_customer(customer.clone()).await;
+        println!("{:#?}", result);
+    }
+
+    // Create Orders in the database
+    // Iterate over orders and create them in the database
+    for order in orders.iter() {
+        let result = ce_database::create_order(order.clone()).await;
+        println!("{:#?}", result);
+    }
 
     let orders = ce_database::get_orders_in_period(1).await;
     println!("{:#?}", orders);

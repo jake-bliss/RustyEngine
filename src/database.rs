@@ -1,11 +1,7 @@
 use super::models as ce_models;
-use crate::models::Period;
-use chrono::NaiveTime;
-use chrono::{NaiveDate, NaiveDateTime};
-use faker_rand::en_us::company;
+use chrono::NaiveDateTime;
 use futures::future::join_all;
 use sqlx::mysql::MySqlPool;
-use sqlx::types::time::Date;
 use sqlx::types::time::PrimitiveDateTime;
 use std::env;
 use std::option::Option; // Add this import at the top
@@ -507,4 +503,376 @@ pub async fn get_orders_in_period(
     let orders: Vec<ce_models::Order> = join_all(orders).await.into_iter().collect();
 
     Ok(orders)
+}
+
+pub async fn create_order(order: ce_models::Order) -> Result<(), Box<dyn std::error::Error>> {
+    dotenv::dotenv().ok();
+
+    let pool = MySqlPool::connect(&env::var("DATABASE_URL")?).await?;
+
+    //Print the order
+
+    println!("{:#?}", order);
+
+    //Create the order
+    let order_id = sqlx::query(
+        r#"
+        INSERT INTO Orders
+        SET order_id = ?, 
+        company_id = ?,
+            order_date = ?,
+            customer_id = ?,
+            order_status_id = ?,
+            currency_code = ?,
+            warehouse_id = ?,
+            ship_method_id = ?,
+            order_type_id = ?,
+            price_type_id = ?,
+            first_name = ?,
+            middle_name = ?,
+            last_name = ?,
+            name_suffix = ?,
+            company = ?,
+            address1 = ?,
+            address2 = ?,
+            address3 = ?,
+            city = ?,
+            state = ?,
+            zip = ?,
+            country = ?,
+            county = ?,
+            email = ?,
+            phone = ?,
+            notes = ?,
+            total = ?,
+            sub_total = ?,
+            tax_total = ?,
+            shipping_total = ?,
+            discount_total = ?,
+            discount_percent = ?,
+            weight_total = ?,
+            business_volume_total = ?,
+            commissionable_volume_total = ?,
+            other1_total = ?,
+            other2_total = ?,
+            other3_total = ?,
+            other4_total = ?,
+            other5_total = ?,
+            other6_total = ?,
+            other7_total = ?,
+            other8_total = ?,
+            other9_total = ?,
+            other10_total = ?,
+            shipping_tax = ?,
+            order_tax = ?,
+            fed_tax_total = ?,
+            state_tax_total = ?,
+            fed_shipping_tax = ?,
+            state_shipping_tax = ?,
+            city_shipping_tax = ?,
+            city_local_shipping_tax = ?,
+            county_shipping_tax = ?,
+            county_local_shipping_tax = ?,
+            other11 = ?,
+            other12 = ?,
+            other13 = ?,
+            other14 = ?,
+            other15 = ?,
+            other16 = ?,
+            other17 = ?,
+            other18 = ?,
+            other19 = ?,
+            other20 = ?,
+            is_commissionable = ?,
+            auto_order_id = ?,
+            return_order_id = ?,
+            replacement_order_id = ?,
+            parent_order_id = ?,
+            decline_count = ?,
+            transfer_to_customer_id = ?,
+            party_id = ?,
+            shipped_date = ?,
+            created_date = ?,
+            locked_date = ?,
+            modified_date = ?,
+            created_by = ?,
+            modified_by = ?,
+            tax_integration_calculate = ?,
+            tax_integration_commit = ?,
+            handling_fee = ?,
+            pickup_name = ?,
+            total_taxable = ?,
+            order_sub_status_id = ?,
+            referral_id = ?;
+        "#,
+    )
+    .bind(order.order_id)
+    .bind(order.company_id)
+    .bind(order.order_date.format("%Y-%m-%d %H:%M:%S").to_string())
+    .bind(order.customer_id)
+    .bind(order.order_status_id)
+    .bind(order.currency_code)
+    .bind(order.warehouse_id)
+    .bind(order.ship_method_id)
+    .bind(order.order_type_id)
+    .bind(order.price_type_id)
+    .bind(order.first_name)
+    .bind(order.middle_name)
+    .bind(order.last_name)
+    .bind(order.name_suffix)
+    .bind(order.company)
+    .bind(order.address1)
+    .bind(order.address2)
+    .bind(order.address3)
+    .bind(order.city)
+    .bind(order.state)
+    .bind(order.zip)
+    .bind(order.country)
+    .bind(order.county)
+    .bind(order.email)
+    .bind(order.phone)
+    .bind(order.notes)
+    .bind(order.total)
+    .bind(order.sub_total)
+    .bind(order.tax_total)
+    .bind(order.shipping_total)
+    .bind(order.discount_total)
+    .bind(order.discount_percent)
+    .bind(order.weight_total)
+    .bind(order.business_volume_total)
+    .bind(order.commissionable_volume_total)
+    .bind(order.other1_total)
+    .bind(order.other2_total)
+    .bind(order.other3_total)
+    .bind(order.other4_total)
+    .bind(order.other5_total)
+    .bind(order.other6_total)
+    .bind(order.other7_total)
+    .bind(order.other8_total)
+    .bind(order.other9_total)
+    .bind(order.other10_total)
+    .bind(order.shipping_tax)
+    .bind(order.order_tax)
+    .bind(order.fed_tax_total)
+    .bind(order.state_tax_total)
+    .bind(order.fed_shipping_tax)
+    .bind(order.state_shipping_tax)
+    .bind(order.city_shipping_tax)
+    .bind(order.city_local_shipping_tax)
+    .bind(order.county_shipping_tax)
+    .bind(order.county_local_shipping_tax)
+    .bind(order.other11)
+    .bind(order.other12)
+    .bind(order.other13)
+    .bind(order.other14)
+    .bind(order.other15)
+    .bind(order.other16)
+    .bind(order.other17)
+    .bind(order.other18)
+    .bind(order.other19)
+    .bind(order.other20)
+    .bind(order.is_commissionable)
+    .bind(order.auto_order_id)
+    .bind(order.return_order_id)
+    .bind(order.replacement_order_id)
+    .bind(order.parent_order_id)
+    .bind(order.decline_count)
+    .bind(order.transfer_to_customer_id)
+    .bind(order.party_id)
+    .bind(
+        order
+            .shipped_date
+            .unwrap()
+            .format("%Y-%m-%d %H:%M:%S")
+            .to_string(),
+    )
+    .bind(order.created_date.format("%Y-%m-%d %H:%M:%S").to_string())
+    .bind(
+        order
+            .locked_date
+            .map(|date| date.format("%Y-%m-%d %H:%M:%S").to_string()),
+    )
+    .bind(order.modified_date.format("%Y-%m-%d %H:%M:%S").to_string())
+    .bind(order.created_by)
+    .bind(order.modified_by)
+    .bind(order.tax_integration_calculate)
+    .bind(order.tax_integration_commit)
+    .bind(order.handling_fee)
+    .bind(order.pickup_name)
+    .bind(order.total_taxable)
+    .bind(order.order_sub_status_id)
+    .bind(order.referral_id)
+    .execute(&pool)
+    .await?
+    .last_insert_id();
+
+    // Create the order details
+    for order_detail in order.order_details {
+        create_order_detail(order_detail).await?;
+    }
+
+    // Return Ok
+
+    Ok(())
+}
+
+pub async fn create_order_detail(
+    order_detail: ce_models::OrderDetail,
+) -> Result<(), Box<dyn std::error::Error>> {
+    dotenv::dotenv().ok();
+
+    let pool = MySqlPool::connect(&env::var("DATABASE_URL")?).await?;
+
+    //Print the order detail
+    println!("{:?}", order_detail);
+
+    //Create the order detail
+    let order_detail_id = sqlx::query(
+        r#"
+        INSERT INTO OrderDetail
+        SET order_id = ?,
+            order_line = ?,
+            parent_order_detail_id = ?,
+            item_id = ?,
+            item_code = ?,
+            item_description = ?,
+            quantity = ?,
+            price_each = ?,
+            price_total = ?,
+            tax = ?,
+            weight_each = ?,
+            weight = ?,
+            business_volume_each = ?,
+            business_volume = ?,
+            commissionable_volume_each = ?,
+            commissionable_volume = ?,
+            other1_each = ?,
+            other1 = ?,
+            other2_each = ?,
+            other2 = ?,
+            other3_each = ?,
+            other3 = ?,
+            other4_each = ?,
+            other4 = ?,
+            other5_each = ?,
+            other5 = ?,
+            original_taxable_each = ?,
+            original_business_volume_each = ?,
+            original_commissionable_volume_each = ?,
+            other6_each = ?,
+            other6 = ?,
+            other7_each = ?,
+            other7 = ?,
+            other8_each = ?,
+            other8 = ?,
+            other9_each = ?,
+            other9 = ?,
+            other10_each = ?,
+            other10 = ?,
+            parent_item_id = ?,
+            taxable = ?,
+            fed_tax = ?,
+            state_tax = ?,
+            city_tax = ?,
+            city_local_tax = ?,
+            county_tax = ?,
+            county_local_tax = ?,
+            manual_tax = ?,
+            is_state_tax_override = ?,
+            reference1 = ?;
+        "#,
+    )
+    .bind(order_detail.order_id)
+    .bind(order_detail.order_line)
+    .bind(order_detail.parent_order_detail_id)
+    .bind(order_detail.item_id)
+    .bind(order_detail.item_code)
+    .bind(order_detail.item_description)
+    .bind(order_detail.quantity)
+    .bind(order_detail.price_each)
+    .bind(order_detail.price_total)
+    .bind(order_detail.tax)
+    .bind(order_detail.weight_each)
+    .bind(order_detail.weight)
+    .bind(order_detail.business_volume_each)
+    .bind(order_detail.business_volume)
+    .bind(order_detail.commissionable_volume_each)
+    .bind(order_detail.commissionable_volume)
+    .bind(order_detail.other1_each)
+    .bind(order_detail.other1)
+    .bind(order_detail.other2_each)
+    .bind(order_detail.other2)
+    .bind(order_detail.other3_each)
+    .bind(order_detail.other3)
+    .bind(order_detail.other4_each)
+    .bind(order_detail.other4)
+    .bind(order_detail.other5_each)
+    .bind(order_detail.other5)
+    .bind(order_detail.original_taxable_each)
+    .bind(order_detail.original_business_volume_each)
+    .bind(order_detail.original_commissionable_volume_each)
+    .bind(order_detail.other6_each)
+    .bind(order_detail.other6)
+    .bind(order_detail.other7_each)
+    .bind(order_detail.other7)
+    .bind(order_detail.other8_each)
+    .bind(order_detail.other8)
+    .bind(order_detail.other9_each)
+    .bind(order_detail.other9)
+    .bind(order_detail.other10_each)
+    .bind(order_detail.other10)
+    .bind(order_detail.parent_item_id)
+    .bind(order_detail.taxable)
+    .bind(order_detail.fed_tax)
+    .bind(order_detail.state_tax)
+    .bind(order_detail.city_tax)
+    .bind(order_detail.city_local_tax)
+    .bind(order_detail.county_tax)
+    .bind(order_detail.county_local_tax)
+    .bind(order_detail.manual_tax)
+    .bind(order_detail.is_state_tax_override)
+    .bind(order_detail.reference1)
+    .execute(&pool)
+    .await?
+    .last_insert_id();
+
+    // Return Ok
+
+    Ok(())
+}
+
+pub async fn create_customer(
+    customer: ce_models::Customer,
+) -> Result<(), Box<dyn std::error::Error>> {
+    dotenv::dotenv().ok();
+
+    let pool = MySqlPool::connect(&env::var("DATABASE_URL")?).await?;
+
+    //Create the customer
+    let customer_id = sqlx::query(
+        r#"
+        INSERT INTO Customer
+        SET company_id = ?,
+            customer_type_id = ?,
+            customer_status_id = ?,
+            customer_sub_status_id = ?,
+            enroller_id = ?,
+            sponsor_id = ?,
+            binary_placement_id = ?;
+        "#,
+    )
+    .bind(customer.company_id)
+    .bind(customer.customer_type_id)
+    .bind(customer.customer_status_id)
+    .bind(customer.customer_sub_status_id)
+    .bind(customer.enroller_id)
+    .bind(customer.sponsor_id)
+    .bind(customer.binary_placement_id)
+    .execute(&pool)
+    .await?
+    .last_insert_id();
+
+    // Return Ok
+
+    Ok(())
 }

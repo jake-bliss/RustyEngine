@@ -1,7 +1,7 @@
 // models.rs
 use chrono::NaiveDateTime;
 use serde::{Deserialize, Serialize};
-use std::option::Option;
+use std::{clone, option::Option};
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Company {
@@ -156,7 +156,7 @@ pub struct OrderDetail {
     pub reference1: Option<String>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Customer {
     pub customer_id: i32,
     pub company_id: i32,

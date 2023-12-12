@@ -14,7 +14,7 @@ pub fn create_fake_order(customer_id: i32) -> ce_models::Order {
     let order_id = Rng::gen_range(&mut rand::thread_rng(), 1..1000);
 
     ce_models::Order {
-        company_id: Rng::gen_range(&mut rand::thread_rng(), 1..10),
+        company_id: 1,
         order_id: order_id,
         customer_id: customer_id,
         order_status_id: Rng::gen_range(&mut rand::thread_rng(), 1..1000),
@@ -181,7 +181,7 @@ pub fn create_fake_order_detail(order_id: i32, order_line: i32) -> ce_models::Or
 pub fn create_fake_customer() -> ce_models::Customer {
     ce_models::Customer {
         customer_id: Rng::gen_range(&mut rand::thread_rng(), 1..10),
-        company_id: Rng::gen_range(&mut rand::thread_rng(), 1..10),
+        company_id: 1,
         customer_type_id: Rng::gen_range(&mut rand::thread_rng(), 1..10),
         customer_status_id: Rng::gen_range(&mut rand::thread_rng(), 1..10),
         customer_sub_status_id: None,
@@ -330,8 +330,10 @@ pub fn generate_test_data(
         customers.push(customer);
     }
 
-    //Set Tree Top Node Customer ID
-    tree.top_node_customer_id = customers.first().unwrap().customer_id;
+    // Set Tree Top Node Customer ID
+    if let Some(first_customer) = customers.first() {
+        tree.top_node_customer_id = first_customer.customer_id;
+    }
 
     // Create a Vector of Periods
     let mut periods: Vec<ce_models::Period> = Vec::new();
@@ -367,12 +369,12 @@ pub fn generate_test_data(
     }
 
     //Print periods
-    for period in periods.iter() {
-        println!(
-            "Period ID: {}, Period Name: {}, Start Date: {}, End Date: {}",
-            period.period_id, period.period_name, period.period_start_date, period.period_end_date
-        );
-    }
+    // for period in periods.iter() {
+    //     println!(
+    //         "Period ID: {}, Period Name: {}, Start Date: {}, End Date: {}",
+    //         period.period_id, period.period_name, period.period_start_date, period.period_end_date
+    //     );
+    // }
 
     //Return all Vectors
     (dates, company, tree, customers, orders, periods)
