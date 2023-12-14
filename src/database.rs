@@ -483,14 +483,32 @@ pub async fn get_orders_in_period(
                 locked_date,
                 modified_date,
                 created_by: row.created_by.unwrap_or_default(),
-                modified_by: row.modified_by,
-                tax_integration_calculate: Some(row.tax_integration_calculate.unwrap_or(0) != 0),
-                tax_integration_commit: Some(row.tax_integration_commit.unwrap_or(0) != 0),
-                handling_fee: Some(f64::from(row.handling_fee.unwrap() as f64)),
+                modified_by: match row.modified_by {
+                    Some(value) => Some(value),
+                    None => None,
+                },
+                tax_integration_calculate: match row.tax_integration_calculate {
+                    Some(value) => Some(value != 0),
+                    None => None,
+                },
+                tax_integration_commit: match row.tax_integration_commit {
+                    Some(value) => Some(value != 0),
+                    None => None,
+                },
+                handling_fee: match row.handling_fee {
+                    Some(value) => Some(f64::from(value as f64)),
+                    None => None,
+                },
                 pickup_name: row.pickup_name,
                 total_taxable: f64::from(row.total_taxable.unwrap() as f64),
-                order_sub_status_id: row.order_sub_status_id,
-                referral_id: row.referral_id,
+                order_sub_status_id: match row.order_sub_status_id {
+                    Some(value) => Some(value),
+                    None => None,
+                },
+                referral_id: match row.referral_id {
+                    Some(value) => Some(value),
+                    None => None,
+                },
                 order_details: order_details.unwrap(),
             }
         })
@@ -509,10 +527,6 @@ pub async fn create_order(order: ce_models::Order) -> Result<(), Box<dyn std::er
     dotenv::dotenv().ok();
 
     let pool = MySqlPool::connect(&env::var("DATABASE_URL")?).await?;
-
-    //Print the order
-
-    println!("{:#?}", order);
 
     //Create the order
     let order_id = sqlx::query(
@@ -722,9 +736,6 @@ pub async fn create_order_detail(
     dotenv::dotenv().ok();
 
     let pool = MySqlPool::connect(&env::var("DATABASE_URL")?).await?;
-
-    //Print the order detail
-    println!("{:?}", order_detail);
 
     //Create the order detail
     let order_detail_id = sqlx::query(

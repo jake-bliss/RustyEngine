@@ -1,4 +1,5 @@
 // main.rs
+mod api;
 mod database;
 mod factory;
 mod models;
@@ -9,6 +10,7 @@ use commission_engine::factory as ce_factory;
 use commission_engine::models as ce_models;
 use futures::TryFutureExt;
 use tokio::runtime::Runtime;
+use warp::Filter;
 
 #[tokio::main(flavor = "current_thread")]
 async fn main() {
@@ -91,21 +93,28 @@ async fn main() {
     // println!("{:#?}", result);
 
     //Generate Test Data
-    let (dates, company, tree, customers, orders, periods) = ce_factory::generate_test_data(3, 3);
+    // let (dates, company, tree, customers, orders, periods) = ce_factory::generate_test_data(10, 5);
 
-    // Iterate over Customers and create them in the database
-    for customer in customers.iter() {
-        let result = ce_database::create_customer(customer.clone()).await;
-        println!("{:#?}", result);
-    }
+    // // Iterate over Customers and create them in the database
+    // for customer in customers.iter() {
+    //     let result = ce_database::create_customer(customer.clone()).await;
+    //     // println!("{:#?}", result);
+    // }
 
-    // Create Orders in the database
-    // Iterate over orders and create them in the database
-    for order in orders.iter() {
-        let result = ce_database::create_order(order.clone()).await;
-        println!("{:#?}", result);
-    }
+    // // Create Orders in the database
+    // // Iterate over orders and create them in the database
+    // for order in orders.iter() {
+    //     let result = ce_database::create_order(order.clone()).await;
+    //     // println!("{:#?}", result);
+    // }
 
-    let orders = ce_database::get_orders_in_period(1).await;
-    println!("{:#?}", orders);
+    // let orders = ce_database::get_orders_in_period(1).await;
+    // // Print the number of orders in the first period
+    // println!(
+    //     "Number of Orders in the first period: {}",
+    //     orders.unwrap().len()
+    // );
+    let routes = api::routes();
+
+    warp::serve(routes).run(([127, 0, 0, 1], 3030)).await;
 }
