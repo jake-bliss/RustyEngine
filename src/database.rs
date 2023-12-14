@@ -693,13 +693,10 @@ pub async fn create_order(order: ce_models::Order) -> Result<(), Box<dyn std::er
     .bind(order.decline_count)
     .bind(order.transfer_to_customer_id)
     .bind(order.party_id)
-    .bind(
-        order
-            .shipped_date
-            .unwrap()
-            .format("%Y-%m-%d %H:%M:%S")
-            .to_string(),
-    )
+    .bind(match order.shipped_date {
+        Some(date) => date.format("%Y-%m-%d %H:%M:%S").to_string(),
+        None => String::new(), // or any other default value you want to use
+    })
     .bind(order.created_date.format("%Y-%m-%d %H:%M:%S").to_string())
     .bind(
         order
