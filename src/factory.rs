@@ -218,7 +218,7 @@ pub fn create_fake_company() -> ce_models::Company {
     ce_models::Company {
         company_id: company_id,
         company_name: format!("Test Company {}", company_id),
-        tree_types: vec![2],
+        tree_types: Some(vec![2]),
     }
 }
 

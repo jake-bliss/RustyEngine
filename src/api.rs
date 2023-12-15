@@ -1,38 +1,20 @@
 use commission_engine::database as ce_database;
 use commission_engine::models as ce_models;
+use dotenv::dotenv;
+use std::env;
 use std::error::Error as StdError;
 use warp::reject::Reject;
 use warp::Filter;
 
 // Define your API endpoints
 pub fn routes() -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
-    hello_route().or(create_customer_route()).or(order_route())
+    hello_route()
+        .or(create_customer_route())
+        .or(order_route())
+        .or(company_route())
 }
 
-fn hello_route() -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
-    warp::path!("hello" / String).map(|name| format!("Hello, {}!", name))
-}
-
-//This Route will recieve a JSON object and return a JSON object
-fn create_customer_route(
-) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
-    warp::path!("create_customer")
-        .and(warp::post())
-        .and(warp::body::json())
-        .map(|customer: ce_models::Customer| {
-            println!("Customer: {:?}", customer);
-            warp::reply::json(&customer)
-        })
-}
-
-async fn order_handler(order: ce_models::Order) -> Result<impl warp::Reply, warp::Rejection> {
-    println!("Order: {:?}", order);
-
-    // Create order in database
-    ce_database::create_order(order.clone()).await;
-
-    Ok(warp::reply::json(&order))
-}
+//Handle Custom Errors
 
 #[derive(Debug)]
 struct CustomError {
@@ -50,11 +32,63 @@ impl std::fmt::Display for CustomError {
     }
 }
 
-fn order_route() -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
-    warp::path!("order")
+fn hello_route() -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
+    warp::path!("hello" / String).map(|name| format!("Hello, {}!", name))
+}
+
+// Authenticated Route
+fn authenticate() -> impl Filter<Extract = ((),), Error = warp::Rejection> + Copy {
+    dotenv().ok(); // Load the .env file
+
+    warp::header::optional::<String>("Authorization").and_then(
+        |header_value: Option<String>| async move {
+            match header_value {
+                Some(token) => {
+                    // Get the token value from the .env file
+                    let expected_token = env::var("TOKEN").unwrap_or_default();
+
+                    // Validate the token
+                    if token == expected_token {
+                        Ok(())
+                    } else {
+                        Err(warp::reject::custom(CustomError {}))
+                    }
+                }
+                None => Err(warp::reject::custom(CustomError {})),
+            }
+        },
+    )
+}
+
+//This Route will recieve a JSON object and return a JSON object
+fn create_customer_route(
+) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
+    authenticate()
+        .and(warp::path!("create_customer"))
         .and(warp::post())
         .and(warp::body::json())
-        .and_then(|order: ce_models::Order| async move {
+        .map(|_, customer: ce_models::Customer| {
+            // Modify the closure to take two arguments
+            println!("Customer: {:?}", customer);
+            warp::reply::json(&customer)
+        })
+}
+
+async fn order_handler(order: ce_models::Order) -> Result<impl warp::Reply, warp::Rejection> {
+    println!("Order: {:?}", order);
+
+    // Create order in database
+    ce_database::create_order(order.clone()).await;
+
+    Ok(warp::reply::json(&order))
+}
+
+fn order_route() -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
+    authenticate()
+        .and(warp::path!("order"))
+        .and(warp::post())
+        .and(warp::body::json())
+        .and_then(|_, order: ce_models::Order| async move {
             println!("Order: {:?}", order);
 
             // Perform the database operation here
@@ -62,6 +96,25 @@ fn order_route() -> impl Filter<Extract = impl warp::Reply, Error = warp::Reject
                 Ok(_) => Ok(warp::reply::json(&order)),
                 Err(e) => {
                     eprintln!("Error creating order: {}", e);
+                    Err(warp::reject::custom(CustomError {}))
+                }
+            }
+        })
+}
+
+fn company_route() -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
+    authenticate()
+        .and(warp::path!("company"))
+        .and(warp::post())
+        .and(warp::body::json())
+        .and_then(|_, company: ce_models::Company| async move {
+            println!("Company: {:?}", company);
+
+            // Perform the database operation here
+            match ce_database::create_company(company.clone()).await {
+                Ok(_) => Ok(warp::reply::json(&company)),
+                Err(e) => {
+                    eprintln!("Error creating company: {}", e);
                     Err(warp::reject::custom(CustomError {}))
                 }
             }

@@ -1,6 +1,6 @@
 use super::models as ce_models;
 use chrono::NaiveDateTime;
-use futures::future::join_all;
+use futures::future::{join_all, ok};
 use sqlx::mysql::MySqlPool;
 use sqlx::types::time::PrimitiveDateTime;
 use std::env;
@@ -876,6 +876,54 @@ pub async fn create_customer(
     .bind(customer.enroller_id)
     .bind(customer.sponsor_id)
     .bind(customer.binary_placement_id)
+    .execute(&pool)
+    .await?
+    .last_insert_id();
+
+    // Return Ok
+
+    Ok(())
+}
+
+//Get Company
+
+pub async fn get_company(
+    company_id: Option<i32>,
+) -> Result<Vec<ce_models::Company>, Box<dyn std::error::Error>> {
+    dotenv::dotenv().ok();
+
+    let pool = MySqlPool::connect(&env::var("DATABASE_URL")?).await?;
+
+    //Get the companies
+    let companies = sqlx::query!("SELECT * FROM Company;",)
+        .map(|row| ce_models::Company {
+            company_id: row.company_id,
+            company_name: row.company_name.unwrap_or_default(),
+            tree_types: Some(vec![]),
+        })
+        .fetch_all(&pool)
+        .await?;
+
+    Ok(companies) // Wrap the `companies` variable in the `Ok()` variant of the `Result` enum.
+}
+
+//Create Company
+
+pub async fn create_company(company: ce_models::Company) -> Result<(), Box<dyn std::error::Error>> {
+    dotenv::dotenv().ok();
+
+    let pool = MySqlPool::connect(&env::var("DATABASE_URL")?).await?;
+
+    //Create the company
+    let company_id = sqlx::query(
+        r#"
+        INSERT INTO Company
+        SET company_id = ?,
+            company_name = ?;
+        "#,
+    )
+    .bind(company.company_id)
+    .bind(company.company_name)
     .execute(&pool)
     .await?
     .last_insert_id();
