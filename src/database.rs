@@ -1,5 +1,6 @@
 use super::models as ce_models;
 use chrono::NaiveDateTime;
+use faker_rand::en_us::company;
 use futures::future::{join_all, ok};
 use sqlx::mysql::MySqlPool;
 use sqlx::types::time::PrimitiveDateTime;
@@ -337,7 +338,10 @@ pub async fn get_orders() -> Result<Vec<ce_models::Order>, Box<dyn std::error::E
                         row.tax_integration_calculate.unwrap_or(0) != 0,
                     ),
                     tax_integration_commit: Some(row.tax_integration_commit.unwrap_or(0) != 0),
-                    handling_fee: Some(f64::from(row.handling_fee.unwrap() as f64)),
+                    handling_fee: match row.handling_fee {
+                        Some(value) => Some(f64::from(value as f64)),
+                        None => None,
+                    },
                     pickup_name: row.pickup_name,
                     total_taxable: f64::from(row.total_taxable.unwrap() as f64),
                     order_sub_status_id: row.order_sub_status_id,
@@ -927,6 +931,83 @@ pub async fn create_company(company: ce_models::Company) -> Result<(), Box<dyn s
     .execute(&pool)
     .await?
     .last_insert_id();
+
+    // Return Ok
+
+    Ok(())
+}
+
+//Get Bonuses
+
+pub async fn get_bonuses(
+    company_id: i32,
+    bonus_id: Option<i32>,
+) -> Result<Vec<ce_models::Bonus>, Box<dyn std::error::Error>> {
+    dotenv::dotenv().ok();
+
+    let pool = MySqlPool::connect(&env::var("DATABASE_URL")?).await?;
+    //Get the bonuses
+    let bonuses = sqlx::query!("SELECT * FROM Bonus WHERE company_id = ?;", company_id)
+        .map(|row| ce_models::Bonus {
+            bonus_id: row.bonus_id,
+            bonus_name: row.bonus_name.unwrap_or_default(),
+            bonus_percentage: row.bonus_percentage.unwrap_or_default() as f64,
+            bonus_amount: row.bonus_amount.unwrap_or_default() as f64,
+            to_customer_id: row.to_customer_id.unwrap_or_default(),
+            source_customer_id: Some(row.source_customer_id.unwrap_or_default()),
+            source_order_id: Some(row.source_order_id.unwrap_or_default()),
+            company_id: row.company_id.unwrap_or_default(),
+        })
+        .fetch_all(&pool)
+        .await?;
+
+    //If the BonusID is specified, filter the bonuses
+    if let Some(bonus_id) = bonus_id {
+        return Ok(bonuses
+            .into_iter()
+            .filter(|bonus| bonus.bonus_id == bonus_id)
+            .collect());
+    }
+
+    //Return the bonuses
+
+    Ok(bonuses)
+}
+
+// Create or Update Bonus
+
+pub async fn create_or_update_bonus(
+    bonus: ce_models::Bonus,
+) -> Result<(), Box<dyn std::error::Error>> {
+    dotenv::dotenv().ok();
+    println!("Bonus: {:?}", bonus);
+
+    let pool = MySqlPool::connect(&env::var("DATABASE_URL")?).await?;
+
+    // Create the new bonus
+    sqlx::query(
+        r#"
+            INSERT INTO Bonus
+            SET bonus_id = ?,
+                bonus_name = ?,
+                bonus_percentage = ?,
+                bonus_amount = ?,
+                to_customer_id = ?,
+                source_customer_id = ?,
+                source_order_id = ?,
+                company_id = ?;
+            "#,
+    )
+    .bind(bonus.bonus_id)
+    .bind(bonus.bonus_name)
+    .bind(bonus.bonus_percentage)
+    .bind(bonus.bonus_amount)
+    .bind(bonus.to_customer_id)
+    .bind(bonus.source_customer_id)
+    .bind(bonus.source_order_id)
+    .bind(bonus.company_id)
+    .execute(&pool)
+    .await?;
 
     // Return Ok
 

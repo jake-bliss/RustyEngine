@@ -12,6 +12,7 @@ pub fn routes() -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejecti
         .or(create_customer_route())
         .or(order_route())
         .or(company_route())
+        .or(get_bonuses_route())
 }
 
 //Handle Custom Errors
@@ -115,6 +116,29 @@ fn company_route() -> impl Filter<Extract = impl warp::Reply, Error = warp::Reje
                 Ok(_) => Ok(warp::reply::json(&company)),
                 Err(e) => {
                     eprintln!("Error creating company: {}", e);
+                    Err(warp::reject::custom(CustomError {}))
+                }
+            }
+        })
+}
+
+#[derive(serde::Deserialize)]
+struct GetBonusesRequest {
+    company_id: i32,
+    bonus_id: Option<i32>,
+}
+
+fn get_bonuses_route() -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
+    authenticate()
+        .and(warp::path!("bonuses"))
+        .and(warp::get())
+        .and(warp::body::json())
+        .and_then(|_, request: GetBonusesRequest| async move {
+            // Perform the database operation here
+            match ce_database::get_bonuses(request.company_id, request.bonus_id).await {
+                Ok(bonuses) => Ok(warp::reply::json(&bonuses)),
+                Err(e) => {
+                    eprintln!("Error retrieving bonuses: {}", e);
                     Err(warp::reject::custom(CustomError {}))
                 }
             }
