@@ -1,16 +1,15 @@
 use super::database as ce_database;
 use super::models as ce_models;
+use tokio::time::{sleep, Duration};
 
-pub fn calculate_bonuses(orders: &Vec<ce_models::Order>) -> f32 {
+pub async fn calculate_bonuses(orders: &Vec<ce_models::Order>) {
     println!("Starting bonus calculation loop...");
     for order in orders {
-        retail_bonus(order);
+        retail_bonus(order).await;
     }
-
-    0.00
 }
 
-pub fn retail_bonus(order: &ce_models::Order) -> f64 {
+pub async fn retail_bonus(order: &ce_models::Order) {
     // Bonus amount should be 20% of the order subtotal
     let bonus_amount = order.sub_total * 0.2;
 
@@ -33,8 +32,6 @@ pub fn retail_bonus(order: &ce_models::Order) -> f64 {
         };
 
         // Create the bonus in the database
-        let result = ce_database::create_or_update_bonus(bonus.clone());
+        let result = ce_database::create_or_update_bonus(bonus.clone()).await;
     }
-
-    bonus_amount
 }

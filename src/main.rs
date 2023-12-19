@@ -42,8 +42,14 @@ async fn check_for_orders_and_calculate_bonuses() {
     loop {
         sleep(Duration::from_secs(30)).await; // Sleep for 5 minutes
 
-        let orders = ce_database::get_orders().await; // Define this function to get new orders
+        let orders = match ce_database::get_orders().await {
+            Ok(orders) => orders,
+            Err(e) => {
+                eprintln!("Failed to get orders: {}", e);
+                continue;
+            }
+        };
 
-        ce_bonus::calculate_bonuses(&orders.unwrap());
+        ce_bonus::calculate_bonuses(&orders).await;
     }
 }

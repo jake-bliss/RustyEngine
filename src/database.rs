@@ -948,15 +948,50 @@ pub async fn get_bonuses(
     let pool = MySqlPool::connect(&env::var("DATABASE_URL")?).await?;
     //Get the bonuses
     let bonuses = sqlx::query!("SELECT * FROM Bonus WHERE company_id = ?;", company_id)
-        .map(|row| ce_models::Bonus {
-            bonus_id: row.bonus_id,
-            bonus_name: row.bonus_name.unwrap_or_default(),
-            bonus_percentage: row.bonus_percentage.unwrap_or_default() as f64,
-            bonus_amount: row.bonus_amount.unwrap_or_default() as f64,
-            to_customer_id: row.to_customer_id.unwrap_or_default(),
-            source_customer_id: Some(row.source_customer_id.unwrap_or_default()),
-            source_order_id: Some(row.source_order_id.unwrap_or_default()),
-            company_id: row.company_id.unwrap_or_default(),
+        .map(|row| {
+            let bonus_id = match row.bonus_id {
+                Some(id) => id,
+                None => Default::default(),
+            };
+            let bonus_name = match row.bonus_name {
+                Some(name) => name,
+                None => Default::default(),
+            };
+            let bonus_percentage = match row.bonus_percentage {
+                Some(percentage) => percentage as f64,
+                None => Default::default(),
+            };
+            let bonus_amount = match row.bonus_amount {
+                Some(amount) => amount as f64,
+                None => Default::default(),
+            };
+            let to_customer_id = match row.to_customer_id {
+                Some(id) => id,
+                None => Default::default(),
+            };
+            let source_customer_id = match row.source_customer_id {
+                Some(id) => Some(id),
+                None => Default::default(),
+            };
+            let source_order_id = match row.source_order_id {
+                Some(id) => Some(id),
+                None => Default::default(),
+            };
+            let company_id = match row.company_id {
+                Some(id) => id,
+                None => Default::default(),
+            };
+
+            ce_models::Bonus {
+                bonus_id,
+                bonus_name,
+                bonus_percentage,
+                bonus_amount,
+                to_customer_id,
+                source_customer_id,
+                source_order_id,
+                company_id,
+            }
         })
         .fetch_all(&pool)
         .await?;
@@ -984,30 +1019,73 @@ pub async fn create_or_update_bonus(
 
     let pool = MySqlPool::connect(&env::var("DATABASE_URL")?).await?;
 
-    // Create the new bonus
-    sqlx::query(
+    // Check if the bonus record already exists
+    let existing_bonus = sqlx::query!(
         r#"
-            INSERT INTO Bonus
-            SET bonus_id = ?,
-                bonus_name = ?,
-                bonus_percentage = ?,
-                bonus_amount = ?,
-                to_customer_id = ?,
-                source_customer_id = ?,
-                source_order_id = ?,
-                company_id = ?;
-            "#,
+            SELECT COUNT(*) as count
+            FROM Bonus
+            WHERE bonus_id = ? AND
+                to_customer_id = ? AND
+                company_id = ? AND
+                source_order_id = ?;
+        "#,
+        bonus.bonus_id,
+        bonus.to_customer_id,
+        bonus.company_id,
+        bonus.source_order_id
     )
-    .bind(bonus.bonus_id)
-    .bind(bonus.bonus_name)
-    .bind(bonus.bonus_percentage)
-    .bind(bonus.bonus_amount)
-    .bind(bonus.to_customer_id)
-    .bind(bonus.source_customer_id)
-    .bind(bonus.source_order_id)
-    .bind(bonus.company_id)
-    .execute(&pool)
+    .fetch_one(&pool)
     .await?;
+
+    if existing_bonus.count > 0 {
+        // Update the existing bonus record
+        sqlx::query(
+            r#"
+                UPDATE Bonus
+                SET bonus_name = ?,
+                    bonus_percentage = ?,
+                    bonus_amount = ?
+                WHERE bonus_id = ? AND
+                    to_customer_id = ? AND
+                    company_id = ? AND
+                    source_order_id = ?;
+            "#,
+        )
+        .bind(bonus.bonus_name)
+        .bind(bonus.bonus_percentage)
+        .bind(bonus.bonus_amount)
+        .bind(bonus.bonus_id)
+        .bind(bonus.to_customer_id)
+        .bind(bonus.company_id)
+        .bind(bonus.source_order_id)
+        .execute(&pool)
+        .await?;
+    } else {
+        // Create the new bonus record
+        sqlx::query(
+            r#"
+                INSERT INTO Bonus
+                SET bonus_id = ?,
+                    bonus_name = ?,
+                    bonus_percentage = ?,
+                    bonus_amount = ?,
+                    to_customer_id = ?,
+                    source_customer_id = ?,
+                    source_order_id = ?,
+                    company_id = ?;
+            "#,
+        )
+        .bind(bonus.bonus_id)
+        .bind(bonus.bonus_name)
+        .bind(bonus.bonus_percentage)
+        .bind(bonus.bonus_amount)
+        .bind(bonus.to_customer_id)
+        .bind(bonus.source_customer_id)
+        .bind(bonus.source_order_id)
+        .bind(bonus.company_id)
+        .execute(&pool)
+        .await?;
+    }
 
     // Return Ok
 

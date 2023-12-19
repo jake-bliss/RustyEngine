@@ -258,7 +258,7 @@ CREATE TABLE OrderDetail
 
 CREATE TABLE Bonus
 (
-    bonus_id INT PRIMARY KEY,
+    bonus_id INT,
     bonus_name VARCHAR(255),
     bonus_percentage FLOAT,
     bonus_amount FLOAT,
