@@ -13,3 +13,9 @@ createtables-db:
 
 droptables-db:
 	mysql -u root -p -h 127.0.0.1 --protocol=TCP -P 3306 < drop-script.sql
+
+createtables-cloud-db:
+	mysql -u staging_db_user_developer -p -h 35.225.39.87 --protocol=TCP -P 3306 < create-script.sql
+
+droptables-cloud-db:
+	mysql -u staging_db_user_developer -p -h 35.225.39.87 --protocol=TCP -P 3306 < drop-script.sql

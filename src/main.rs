@@ -35,12 +35,17 @@ async fn main() {
         check_for_orders_and_calculate_bonuses().await;
     });
 
-    warp::serve(routes).run(([127, 0, 0, 1], 3030)).await;
+    let port = std::env::var("PORT")
+        .unwrap_or_else(|_| String::from("3030"))
+        .parse()
+        .expect("PORT must be a number");
+
+    warp::serve(routes).run(([0, 0, 0, 0], port)).await;
 }
 
 async fn check_for_orders_and_calculate_bonuses() {
     loop {
-        sleep(Duration::from_secs(30)).await; // Sleep for 5 minutes
+        sleep(Duration::from_secs(900)).await; // Sleep for 5 minutes
 
         let orders = match ce_database::get_orders().await {
             Ok(orders) => orders,

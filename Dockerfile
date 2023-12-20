@@ -1,5 +1,5 @@
 # Use an official Rust runtime as a parent image
-FROM rust:1.54 as builder
+FROM rustlang/rust:nightly as builder
 
 # Set the working directory in the container to /app
 WORKDIR /app
@@ -7,19 +7,26 @@ WORKDIR /app
 # Copy over your manifest
 COPY ./Cargo.toml ./Cargo.toml
 
+# Create a dummy main.rs to build dependencies
+RUN mkdir src && echo "fn main() {}" > src/main.rs
+
+# Set DATABASE_URL environment variable
+ENV DATABASE_URL=mysql://staging_db_user_developer:Staging358!@35.225.39.87/rustenginemysql
+ENV TOKEN=MNP69U5jU5UvWY3qRWz9n1VQPr 
+
 # This build step will cache your dependencies
 RUN cargo build --release
-RUN rm src/*.rs
+RUN rm -rf src/
 
 # Copy your source tree
 COPY ./src ./src
 
 # Build for release.
-RUN rm ./target/release/deps/your_project_name*
+RUN rm ./target/release/deps/commission_engine*
 RUN cargo build --release
 
 # Our second stage, that will be the final image
-FROM debian:buster-slim
+FROM debian:bullseye-slim 
 
 # We need to add the target architecture of Rust binaries
 # If you are using stable, you might change this to stable
@@ -30,7 +37,7 @@ ARG ARCH=x86_64-unknown-linux-gnu
 RUN apt-get update && apt-get install -y openssl ca-certificates && rm -rf /var/lib/apt/lists/*
 
 # Copy the build artifact from the builder stage
-COPY --from=builder /app/target/release/your_project_name /usr/local/bin
+COPY --from=builder /app/target/release/commission_engine /usr/local/bin
 
 # Set the startup command to run your binary
 CMD ["commission_engine"]
