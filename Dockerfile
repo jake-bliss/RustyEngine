@@ -41,3 +41,5 @@ COPY --from=builder /app/target/release/commission_engine /usr/local/bin
 
 # Set the startup command to run your binary
 CMD ["commission_engine"]
+
+#Test
