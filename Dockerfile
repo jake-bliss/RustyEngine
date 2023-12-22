@@ -14,8 +14,9 @@ COPY ./Cargo.toml ./Cargo.toml
 RUN mkdir src && echo "fn main() {}" > src/main.rs
 
 # Set DATABASE_URL environment variable
-ENV DATABASE_URL=mysql://staging_db_user_developer:Staging358!@krato-admin:us-central1:krato-staging:3306/rustenginemysql?unix_socket=/cloudsql/krato-admin:us-central1:krato-staging
-ENV TOKEN=phr93AjbU7bXkwd0tuRKCnn58A 
+ENV DATABASE_URL=mysql://staging_db_user_developer:Staging358!@/rustenginemysql?unix_socket=/cloudsql/krato-admin:us-central1:krato-staging
+ENV TOKEN=phr93AjbU7bXkwd0tuRKCnn58A
+ENV SQLX_OFFLINE=true
 
 # This build step will cache your dependencies
 RUN cargo build --release
@@ -34,8 +35,9 @@ RUN cargo build --release
 FROM debian:bullseye-slim 
 
 # Set DATABASE_URL environment variable
-ENV DATABASE_URL=mysql://staging_db_user_developer:Staging358!@krato-admin:us-central1:krato-staging:3306/rustenginemysql?unix_socket=/cloudsql/krato-admin:us-central1:krato-staging
-ENV TOKEN=phr93AjbU7bXkwd0tuRKCnn58A 
+ENV DATABASE_URL=mysql://staging_db_user_developer:Staging358!@/rustenginemysql?unix_socket=/cloudsql/krato-admin:us-central1:krato-staging
+ENV TOKEN=phr93AjbU7bXkwd0tuRKCnn58A
+ENV SQLX_OFFLINE=true
 
 # We need to add the target architecture of Rust binaries
 # If you are using stable, you might change this to stable
