@@ -14,7 +14,7 @@ COPY ./Cargo.toml ./Cargo.toml
 RUN mkdir src && echo "fn main() {}" > src/main.rs
 
 # Set DATABASE_URL environment variable
-ENV DATABASE_URL=mysql://staging_db_user_developer:Staging358!@/rustenginemysql?unix_socket=/cloudsql/krato-admin:us-central1:krato-staging
+ENV DATABASE_URL=mysql://staging_db_user_developer:Staging358!@krato-admin:us-central1:krato-staging/rustenginemysql?unix_socket=/cloudsql/krato-staging
 ENV TOKEN=phr93AjbU7bXkwd0tuRKCnn58A
 ENV SQLX_OFFLINE=true
 
@@ -35,7 +35,7 @@ RUN cargo build --release
 FROM debian:bullseye-slim 
 
 # Set DATABASE_URL environment variable
-ENV DATABASE_URL=mysql://staging_db_user_developer:Staging358!@/rustenginemysql?unix_socket=/cloudsql/krato-admin:us-central1:krato-staging
+ENV DATABASE_URL=mysql://staging_db_user_developer:Staging358!@krato-admin:us-central1:krato-staging/rustenginemysql?unix_socket=/cloudsql/krato-staging
 ENV TOKEN=phr93AjbU7bXkwd0tuRKCnn58A
 ENV SQLX_OFFLINE=true
 
