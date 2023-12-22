@@ -1,0 +1,575 @@
+{
+  "db_name": "MySQL",
+  "query": "SELECT * FROM OrderDetail WHERE order_id = ?;",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "order_id",
+        "type_info": {
+          "type": "Long",
+          "flags": "MULTIPLE_KEY",
+          "char_set": 63,
+          "max_size": 11
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "order_line",
+        "type_info": {
+          "type": "Long",
+          "flags": "",
+          "char_set": 63,
+          "max_size": 11
+        }
+      },
+      {
+        "ordinal": 2,
+        "name": "order_detail_id",
+        "type_info": {
+          "type": "Long",
+          "flags": "",
+          "char_set": 63,
+          "max_size": 11
+        }
+      },
+      {
+        "ordinal": 3,
+        "name": "parent_order_detail_id",
+        "type_info": {
+          "type": "Long",
+          "flags": "",
+          "char_set": 63,
+          "max_size": 11
+        }
+      },
+      {
+        "ordinal": 4,
+        "name": "item_id",
+        "type_info": {
+          "type": "Long",
+          "flags": "",
+          "char_set": 63,
+          "max_size": 11
+        }
+      },
+      {
+        "ordinal": 5,
+        "name": "item_code",
+        "type_info": {
+          "type": "VarString",
+          "flags": "",
+          "char_set": 224,
+          "max_size": 1020
+        }
+      },
+      {
+        "ordinal": 6,
+        "name": "item_description",
+        "type_info": {
+          "type": "VarString",
+          "flags": "",
+          "char_set": 224,
+          "max_size": 1020
+        }
+      },
+      {
+        "ordinal": 7,
+        "name": "quantity",
+        "type_info": {
+          "type": "Long",
+          "flags": "",
+          "char_set": 63,
+          "max_size": 11
+        }
+      },
+      {
+        "ordinal": 8,
+        "name": "price_each",
+        "type_info": {
+          "type": "Float",
+          "flags": "",
+          "char_set": 63,
+          "max_size": 12
+        }
+      },
+      {
+        "ordinal": 9,
+        "name": "price_total",
+        "type_info": {
+          "type": "Float",
+          "flags": "",
+          "char_set": 63,
+          "max_size": 12
+        }
+      },
+      {
+        "ordinal": 10,
+        "name": "tax",
+        "type_info": {
+          "type": "Float",
+          "flags": "",
+          "char_set": 63,
+          "max_size": 12
+        }
+      },
+      {
+        "ordinal": 11,
+        "name": "weight_each",
+        "type_info": {
+          "type": "Float",
+          "flags": "",
+          "char_set": 63,
+          "max_size": 12
+        }
+      },
+      {
+        "ordinal": 12,
+        "name": "weight",
+        "type_info": {
+          "type": "Float",
+          "flags": "",
+          "char_set": 63,
+          "max_size": 12
+        }
+      },
+      {
+        "ordinal": 13,
+        "name": "business_volume_each",
+        "type_info": {
+          "type": "Float",
+          "flags": "",
+          "char_set": 63,
+          "max_size": 12
+        }
+      },
+      {
+        "ordinal": 14,
+        "name": "business_volume",
+        "type_info": {
+          "type": "Float",
+          "flags": "",
+          "char_set": 63,
+          "max_size": 12
+        }
+      },
+      {
+        "ordinal": 15,
+        "name": "commissionable_volume_each",
+        "type_info": {
+          "type": "Float",
+          "flags": "",
+          "char_set": 63,
+          "max_size": 12
+        }
+      },
+      {
+        "ordinal": 16,
+        "name": "commissionable_volume",
+        "type_info": {
+          "type": "Float",
+          "flags": "",
+          "char_set": 63,
+          "max_size": 12
+        }
+      },
+      {
+        "ordinal": 17,
+        "name": "other1_each",
+        "type_info": {
+          "type": "Float",
+          "flags": "",
+          "char_set": 63,
+          "max_size": 12
+        }
+      },
+      {
+        "ordinal": 18,
+        "name": "other1",
+        "type_info": {
+          "type": "Float",
+          "flags": "",
+          "char_set": 63,
+          "max_size": 12
+        }
+      },
+      {
+        "ordinal": 19,
+        "name": "other2_each",
+        "type_info": {
+          "type": "Float",
+          "flags": "",
+          "char_set": 63,
+          "max_size": 12
+        }
+      },
+      {
+        "ordinal": 20,
+        "name": "other2",
+        "type_info": {
+          "type": "Float",
+          "flags": "",
+          "char_set": 63,
+          "max_size": 12
+        }
+      },
+      {
+        "ordinal": 21,
+        "name": "other3_each",
+        "type_info": {
+          "type": "Float",
+          "flags": "",
+          "char_set": 63,
+          "max_size": 12
+        }
+      },
+      {
+        "ordinal": 22,
+        "name": "other3",
+        "type_info": {
+          "type": "Float",
+          "flags": "",
+          "char_set": 63,
+          "max_size": 12
+        }
+      },
+      {
+        "ordinal": 23,
+        "name": "other4_each",
+        "type_info": {
+          "type": "Float",
+          "flags": "",
+          "char_set": 63,
+          "max_size": 12
+        }
+      },
+      {
+        "ordinal": 24,
+        "name": "other4",
+        "type_info": {
+          "type": "Float",
+          "flags": "",
+          "char_set": 63,
+          "max_size": 12
+        }
+      },
+      {
+        "ordinal": 25,
+        "name": "other5_each",
+        "type_info": {
+          "type": "Float",
+          "flags": "",
+          "char_set": 63,
+          "max_size": 12
+        }
+      },
+      {
+        "ordinal": 26,
+        "name": "other5",
+        "type_info": {
+          "type": "Float",
+          "flags": "",
+          "char_set": 63,
+          "max_size": 12
+        }
+      },
+      {
+        "ordinal": 27,
+        "name": "original_taxable_each",
+        "type_info": {
+          "type": "Float",
+          "flags": "",
+          "char_set": 63,
+          "max_size": 12
+        }
+      },
+      {
+        "ordinal": 28,
+        "name": "original_business_volume_each",
+        "type_info": {
+          "type": "Float",
+          "flags": "",
+          "char_set": 63,
+          "max_size": 12
+        }
+      },
+      {
+        "ordinal": 29,
+        "name": "original_commissionable_volume_each",
+        "type_info": {
+          "type": "Float",
+          "flags": "",
+          "char_set": 63,
+          "max_size": 12
+        }
+      },
+      {
+        "ordinal": 30,
+        "name": "other6_each",
+        "type_info": {
+          "type": "Float",
+          "flags": "",
+          "char_set": 63,
+          "max_size": 12
+        }
+      },
+      {
+        "ordinal": 31,
+        "name": "other6",
+        "type_info": {
+          "type": "Float",
+          "flags": "",
+          "char_set": 63,
+          "max_size": 12
+        }
+      },
+      {
+        "ordinal": 32,
+        "name": "other7_each",
+        "type_info": {
+          "type": "Float",
+          "flags": "",
+          "char_set": 63,
+          "max_size": 12
+        }
+      },
+      {
+        "ordinal": 33,
+        "name": "other7",
+        "type_info": {
+          "type": "Float",
+          "flags": "",
+          "char_set": 63,
+          "max_size": 12
+        }
+      },
+      {
+        "ordinal": 34,
+        "name": "other8_each",
+        "type_info": {
+          "type": "Float",
+          "flags": "",
+          "char_set": 63,
+          "max_size": 12
+        }
+      },
+      {
+        "ordinal": 35,
+        "name": "other8",
+        "type_info": {
+          "type": "Float",
+          "flags": "",
+          "char_set": 63,
+          "max_size": 12
+        }
+      },
+      {
+        "ordinal": 36,
+        "name": "other9_each",
+        "type_info": {
+          "type": "Float",
+          "flags": "",
+          "char_set": 63,
+          "max_size": 12
+        }
+      },
+      {
+        "ordinal": 37,
+        "name": "other9",
+        "type_info": {
+          "type": "Float",
+          "flags": "",
+          "char_set": 63,
+          "max_size": 12
+        }
+      },
+      {
+        "ordinal": 38,
+        "name": "other10_each",
+        "type_info": {
+          "type": "Float",
+          "flags": "",
+          "char_set": 63,
+          "max_size": 12
+        }
+      },
+      {
+        "ordinal": 39,
+        "name": "other10",
+        "type_info": {
+          "type": "Float",
+          "flags": "",
+          "char_set": 63,
+          "max_size": 12
+        }
+      },
+      {
+        "ordinal": 40,
+        "name": "parent_item_id",
+        "type_info": {
+          "type": "Long",
+          "flags": "",
+          "char_set": 63,
+          "max_size": 11
+        }
+      },
+      {
+        "ordinal": 41,
+        "name": "taxable",
+        "type_info": {
+          "type": "Float",
+          "flags": "",
+          "char_set": 63,
+          "max_size": 12
+        }
+      },
+      {
+        "ordinal": 42,
+        "name": "fed_tax",
+        "type_info": {
+          "type": "Float",
+          "flags": "",
+          "char_set": 63,
+          "max_size": 12
+        }
+      },
+      {
+        "ordinal": 43,
+        "name": "state_tax",
+        "type_info": {
+          "type": "Float",
+          "flags": "",
+          "char_set": 63,
+          "max_size": 12
+        }
+      },
+      {
+        "ordinal": 44,
+        "name": "city_tax",
+        "type_info": {
+          "type": "Float",
+          "flags": "",
+          "char_set": 63,
+          "max_size": 12
+        }
+      },
+      {
+        "ordinal": 45,
+        "name": "city_local_tax",
+        "type_info": {
+          "type": "Float",
+          "flags": "",
+          "char_set": 63,
+          "max_size": 12
+        }
+      },
+      {
+        "ordinal": 46,
+        "name": "county_tax",
+        "type_info": {
+          "type": "Float",
+          "flags": "",
+          "char_set": 63,
+          "max_size": 12
+        }
+      },
+      {
+        "ordinal": 47,
+        "name": "county_local_tax",
+        "type_info": {
+          "type": "Float",
+          "flags": "",
+          "char_set": 63,
+          "max_size": 12
+        }
+      },
+      {
+        "ordinal": 48,
+        "name": "manual_tax",
+        "type_info": {
+          "type": "Float",
+          "flags": "",
+          "char_set": 63,
+          "max_size": 12
+        }
+      },
+      {
+        "ordinal": 49,
+        "name": "is_state_tax_override",
+        "type_info": {
+          "type": "Tiny",
+          "flags": "",
+          "char_set": 63,
+          "max_size": 1
+        }
+      },
+      {
+        "ordinal": 50,
+        "name": "reference1",
+        "type_info": {
+          "type": "VarString",
+          "flags": "",
+          "char_set": 224,
+          "max_size": 1020
+        }
+      }
+    ],
+    "parameters": {
+      "Right": 1
+    },
+    "nullable": [
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true
+    ]
+  },
+  "hash": "940079fc5d833a33407e6faba201d0d883d417b34a1feb068f7e50a4106bd51d"
+}

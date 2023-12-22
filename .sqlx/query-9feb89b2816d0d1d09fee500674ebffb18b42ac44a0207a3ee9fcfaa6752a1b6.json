@@ -1,0 +1,25 @@
+{
+  "db_name": "MySQL",
+  "query": "\n            SELECT COUNT(*) as count\n            FROM Bonus\n            WHERE bonus_id = ? AND\n                to_customer_id = ? AND\n                company_id = ? AND\n                source_order_id = ?;\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "count",
+        "type_info": {
+          "type": "LongLong",
+          "flags": "NOT_NULL | BINARY",
+          "char_set": 63,
+          "max_size": 21
+        }
+      }
+    ],
+    "parameters": {
+      "Right": 4
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "9feb89b2816d0d1d09fee500674ebffb18b42ac44a0207a3ee9fcfaa6752a1b6"
+}
