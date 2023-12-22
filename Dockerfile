@@ -4,6 +4,9 @@ FROM rustlang/rust:nightly as builder
 # Set the working directory in the container to /app
 WORKDIR /app
 
+# Copy the sqlx-data.json file to the Docker image
+COPY ./.sqlx ./.sqlx
+
 # Copy over your manifest
 COPY ./Cargo.toml ./Cargo.toml
 
@@ -23,6 +26,8 @@ COPY ./src ./src
 
 # Build for release.
 RUN rm ./target/release/deps/commission_engine*
+RUN cargo install sqlx-cli --no-default-features --features mysql
+# RUN cargo sqlx prepare
 RUN cargo build --release
 
 # Our second stage, that will be the final image
