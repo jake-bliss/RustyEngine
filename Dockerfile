@@ -27,9 +27,14 @@ COPY ./src ./src
 
 # Build for release.
 RUN rm ./target/release/deps/commission_engine*
+
 RUN cargo install sqlx-cli --no-default-features --features mysql
+
+ENV SQLX_OFFLINE=true
+
 # RUN cargo sqlx prepare
-RUN cargo build --release
+
+RUN cargo build --release 
 
 # Our second stage, that will be the final image
 FROM debian:bullseye-slim 
