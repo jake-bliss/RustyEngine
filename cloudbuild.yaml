@@ -18,3 +18,5 @@
     - 'us-central1'
   images:
   - 'gcr.io/krato-admin/github.com/jake-bliss/rustyengine:$COMMIT_SHA'
+  options:
+    logging: CLOUD_LOGGING_ONLY
