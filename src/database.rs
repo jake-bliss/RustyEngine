@@ -2,6 +2,7 @@ use super::models as ce_models;
 use chrono::NaiveDateTime;
 use faker_rand::en_us::company;
 use futures::future::{join_all, ok};
+use sqlx::{Connection};
 use sqlx::mysql::MySqlConnection;
 use sqlx::mysql::MySqlConnectOptions;
 use sqlx::types::time::PrimitiveDateTime;

@@ -11,7 +11,7 @@ rand = "0.8.5"
 faker_rand = "0.1.1"
 serde = { version = "1.0.193", features = ["derive"] }
 # tokio (no TLS)
-sqlx = { version = "0.7", features = ["runtime-tokio", "mysql", "time"] }
+sqlx = { version = "0.7.3", features = ["runtime-tokio", "mysql", "time"] }
 tokio = { version = "1.20.0", features = ["rt", "macros", "full"] }
 dotenv = "0.15.0"
 futures = "0.3.17"
