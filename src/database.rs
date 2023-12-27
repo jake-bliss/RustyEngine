@@ -28,9 +28,9 @@ fn convert_to_naive_date_time(d: PrimitiveDateTime) -> chrono::NaiveDateTime {
 pub async fn get_period_types() -> Result<Vec<ce_models::PeriodType>, Box<dyn std::error::Error>> {
     dotenv::dotenv().ok();
     
-    let mut opts: MySqlConnectOptions = (&env::var("DATABASE_URL")?).parse()?;
+    let opts: MySqlConnectOptions = (&env::var("DATABASE_URL")?).parse()?;
 
-    let pool = MySqlPool::connect_with(&opts).await?;
+    let pool = MySqlPool::connect_with(opts).await?;
 
     //Get the period types
     let period_types = sqlx::query!("SELECT * FROM PeriodType;",)
@@ -49,9 +49,9 @@ pub async fn get_period_statuses(
 ) -> Result<Vec<ce_models::PeriodStatus>, Box<dyn std::error::Error>> {
     dotenv::dotenv().ok();
 
-    let mut opts: MySqlConnectOptions = (&env::var("DATABASE_URL")?).parse()?;
+    let opts: MySqlConnectOptions = (&env::var("DATABASE_URL")?).parse()?;
 
-    let pool = MySqlPool::connect_with(&opts).await?;
+    let pool = MySqlPool::connect_with(opts).await?;
 
     //Get the period statuses
     let period_statuses = sqlx::query!("SELECT * FROM PeriodStatus;",)
@@ -69,9 +69,9 @@ pub async fn get_period_statuses(
 pub async fn get_tree_types() -> Result<Vec<ce_models::TreeType>, Box<dyn std::error::Error>> {
     dotenv::dotenv().ok();
     
-    let mut opts: MySqlConnectOptions = (&env::var("DATABASE_URL")?).parse()?;
+    let opts: MySqlConnectOptions = (&env::var("DATABASE_URL")?).parse()?;
 
-    let pool = MySqlPool::connect_with(&opts).await?;
+    let pool = MySqlPool::connect_with(opts).await?;
 
     //Get the tree types
     let tree_types = sqlx::query!("SELECT * FROM TreeType;",)
@@ -91,9 +91,9 @@ pub async fn get_periods(
 ) -> Result<Vec<ce_models::Period>, Box<dyn std::error::Error>> {
     dotenv::dotenv().ok();
     
-    let mut opts: MySqlConnectOptions = (&env::var("DATABASE_URL")?).parse()?;
+    let opts: MySqlConnectOptions = (&env::var("DATABASE_URL")?).parse()?;
 
-    let pool = MySqlPool::connect_with(&opts).await?;
+    let pool = MySqlPool::connect_with(opts).await?;
 
     //Get the periods
     let periods = sqlx::query!("SELECT * FROM Period;",)
@@ -138,9 +138,9 @@ pub async fn get_periods(
 pub async fn get_trees() -> Result<Vec<ce_models::Tree>, Box<dyn std::error::Error>> {
     dotenv::dotenv().ok();
     
-    let mut opts: MySqlConnectOptions = (&env::var("DATABASE_URL")?).parse()?;
+    let opts: MySqlConnectOptions = (&env::var("DATABASE_URL")?).parse()?;
 
-    let pool = MySqlPool::connect_with(&opts).await?;
+    let pool = MySqlPool::connect_with(opts).await?;
 
     //Get the trees
     let trees = sqlx::query!("SELECT * FROM Tree;",)
@@ -173,9 +173,9 @@ pub async fn get_order_details(
 ) -> Result<Vec<ce_models::OrderDetail>, Box<dyn std::error::Error>> {
     dotenv::dotenv().ok();
     
-    let mut opts: MySqlConnectOptions = (&env::var("DATABASE_URL")?).parse()?;
+    let opts: MySqlConnectOptions = (&env::var("DATABASE_URL")?).parse()?;
 
-    let pool = MySqlPool::connect_with(&opts).await?;
+    let pool = MySqlPool::connect_with(opts).await?;
 
     //Get the order details
     let order_details = sqlx::query!("SELECT * FROM OrderDetail WHERE order_id = ?;", order_id)
@@ -247,9 +247,9 @@ pub async fn get_order_details(
 pub async fn get_orders() -> Result<Vec<ce_models::Order>, Box<dyn std::error::Error>> {
     dotenv::dotenv().ok();
     
-    let mut opts: MySqlConnectOptions = (&env::var("DATABASE_URL")?).parse()?;
+    let opts: MySqlConnectOptions = (&env::var("DATABASE_URL")?).parse()?;
 
-    let pool = MySqlPool::connect_with(&opts).await?;
+    let pool = MySqlPool::connect_with(opts).await?;
 
     //Get the orders
     let orders = sqlx::query!("SELECT * FROM Orders;",)
@@ -401,9 +401,9 @@ pub async fn get_orders_in_period(
     let start_date = start_date.format("%Y-%m-%d %H:%M:%S").to_string();
     let end_date = end_date.format("%Y-%m-%d %H:%M:%S").to_string();
     
-    let mut opts: MySqlConnectOptions = (&env::var("DATABASE_URL")?).parse()?;
+    let opts: MySqlConnectOptions = (&env::var("DATABASE_URL")?).parse()?;
 
-    let pool = MySqlPool::connect_with(&opts).await?;
+    let pool = MySqlPool::connect_with(opts).await?;
 
     //Get the orders
     let orders = sqlx::query!(
@@ -547,9 +547,9 @@ pub async fn get_orders_in_period(
 pub async fn create_order(order: ce_models::Order) -> Result<(), Box<dyn std::error::Error>> {
     dotenv::dotenv().ok();
     
-    let mut opts: MySqlConnectOptions = (&env::var("DATABASE_URL")?).parse()?;
+    let opts: MySqlConnectOptions = (&env::var("DATABASE_URL")?).parse()?;
 
-    let pool = MySqlPool::connect_with(&opts).await?;
+    let pool = MySqlPool::connect_with(opts).await?;
 
     //Create the order
     let order_id = sqlx::query(
@@ -755,9 +755,9 @@ pub async fn create_order_detail(
 ) -> Result<(), Box<dyn std::error::Error>> {
     dotenv::dotenv().ok();
     
-    let mut opts: MySqlConnectOptions = (&env::var("DATABASE_URL")?).parse()?;
+    let opts: MySqlConnectOptions = (&env::var("DATABASE_URL")?).parse()?;
 
-    let pool = MySqlPool::connect_with(&opts).await?;
+    let pool = MySqlPool::connect_with(opts).await?;
 
     //Create the order detail
     let order_detail_id = sqlx::query(
@@ -879,9 +879,9 @@ pub async fn create_customer(
 ) -> Result<(), Box<dyn std::error::Error>> {
     dotenv::dotenv().ok();
     
-    let mut opts: MySqlConnectOptions = (&env::var("DATABASE_URL")?).parse()?;
+    let opts: MySqlConnectOptions = (&env::var("DATABASE_URL")?).parse()?;
 
-    let pool = MySqlPool::connect_with(&opts).await?;
+    let pool = MySqlPool::connect_with(opts).await?;
 
     //Create the customer
     let customer_id = sqlx::query(
@@ -919,9 +919,9 @@ pub async fn get_company(
 ) -> Result<Vec<ce_models::Company>, Box<dyn std::error::Error>> {
     dotenv::dotenv().ok();
     
-    let mut opts: MySqlConnectOptions = (&env::var("DATABASE_URL")?).parse()?;
+    let opts: MySqlConnectOptions = (&env::var("DATABASE_URL")?).parse()?;
 
-    let pool = MySqlPool::connect_with(&opts).await?;
+    let pool = MySqlPool::connect_with(opts).await?;
 
     //Get the companies
     let companies = sqlx::query!("SELECT * FROM Company;",)
@@ -941,9 +941,9 @@ pub async fn get_company(
 pub async fn create_company(company: ce_models::Company) -> Result<(), Box<dyn std::error::Error>> {
     dotenv::dotenv().ok();
     
-    let mut opts: MySqlConnectOptions = (&env::var("DATABASE_URL")?).parse()?;
+    let opts: MySqlConnectOptions = (&env::var("DATABASE_URL")?).parse()?;
 
-    let pool = MySqlPool::connect_with(&opts).await?;
+    let pool = MySqlPool::connect_with(opts).await?;
 
     //Create the company
     let company_id = sqlx::query(
@@ -972,9 +972,9 @@ pub async fn get_bonuses(
 ) -> Result<Vec<ce_models::Bonus>, Box<dyn std::error::Error>> {
     dotenv::dotenv().ok();
     
-    let mut opts: MySqlConnectOptions = (&env::var("DATABASE_URL")?).parse()?;
+    let opts: MySqlConnectOptions = (&env::var("DATABASE_URL")?).parse()?;
 
-    let pool = MySqlPool::connect_with(&opts).await?;
+    let pool = MySqlPool::connect_with(opts).await?;
     //Get the bonuses
     let bonuses = sqlx::query!("SELECT * FROM Bonus WHERE company_id = ?;", company_id)
         .map(|row| {
@@ -1046,9 +1046,9 @@ pub async fn create_or_update_bonus(
     dotenv::dotenv().ok();
     println!("Bonus: {:?}", bonus);
     
-    let mut opts: MySqlConnectOptions = (&env::var("DATABASE_URL")?).parse()?;
+    let opts: MySqlConnectOptions = (&env::var("DATABASE_URL")?).parse()?;
 
-    let pool = MySqlPool::connect_with(&opts).await?;
+    let pool = MySqlPool::connect_with(opts).await?;
 
     // Check if the bonus record already exists
     let existing_bonus = sqlx::query!(
