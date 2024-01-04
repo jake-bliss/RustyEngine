@@ -1009,6 +1009,72 @@ pub async fn get_bonuses(
     Ok(bonuses)
 }
 
+pub async fn get_bonuses_by_customer(
+    company_id: i32,
+    customer_id: i32,
+) -> Result<Vec<ce_models::Bonus>, Box<dyn std::error::Error>> {
+    dotenv::dotenv().ok();
+
+    let pool = MySqlPool::connect(&env::var("DATABASE_URL")?).await?;
+    //Get the bonuses
+    let bonuses = sqlx::query!(
+        "SELECT * FROM Bonus WHERE company_id = ? AND to_customer_id = ?;",
+        company_id,
+        customer_id
+    )
+    .map(|row| {
+        let bonus_id = match row.bonus_id {
+            Some(id) => id,
+            None => Default::default(),
+        };
+        let bonus_name = match row.bonus_name {
+            Some(name) => name,
+            None => Default::default(),
+        };
+        let bonus_percentage = match row.bonus_percentage {
+            Some(percentage) => percentage as f64,
+            None => Default::default(),
+        };
+        let bonus_amount = match row.bonus_amount {
+            Some(amount) => amount as f64,
+            None => Default::default(),
+        };
+        let to_customer_id = match row.to_customer_id {
+            Some(id) => id,
+            None => Default::default(),
+        };
+        let source_customer_id = match row.source_customer_id {
+            Some(id) => Some(id),
+            None => Default::default(),
+        };
+        let source_order_id = match row.source_order_id {
+            Some(id) => Some(id),
+            None => Default::default(),
+        };
+        let company_id = match row.company_id {
+            Some(id) => id,
+            None => Default::default(),
+        };
+
+        ce_models::Bonus {
+            bonus_id,
+            bonus_name,
+            bonus_percentage,
+            bonus_amount,
+            to_customer_id,
+            source_customer_id,
+            source_order_id,
+            company_id,
+        }
+    })
+    .fetch_all(&pool)
+    .await?;
+
+    //Return the bonuses
+
+    Ok(bonuses)
+}
+
 // Create or Update Bonus
 
 pub async fn create_or_update_bonus(

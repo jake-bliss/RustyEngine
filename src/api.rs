@@ -13,6 +13,7 @@ pub fn routes() -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejecti
         .or(order_route())
         .or(company_route())
         .or(get_bonuses_route())
+        .or(get_bonuses_by_customer_route())
 }
 
 //Handle Custom Errors
@@ -136,6 +137,33 @@ fn get_bonuses_route() -> impl Filter<Extract = impl warp::Reply, Error = warp::
         .and_then(|_, request: GetBonusesRequest| async move {
             // Perform the database operation here
             match ce_database::get_bonuses(request.company_id, request.bonus_id).await {
+                Ok(bonuses) => Ok(warp::reply::json(&bonuses)),
+                Err(e) => {
+                    eprintln!("Error retrieving bonuses: {}", e);
+                    Err(warp::reject::custom(CustomError {}))
+                }
+            }
+        })
+}
+
+#[derive(serde::Deserialize)]
+
+struct GetBonusesByCustomerRequest {
+    company_id: i32,
+    customer_id: i32,
+}
+
+fn get_bonuses_by_customer_route(
+) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
+    authenticate()
+        .and(warp::path!("bonuses_by_customer"))
+        .and(warp::post())
+        .and(warp::body::json())
+        .and_then(|_, request: GetBonusesByCustomerRequest| async move {
+            // Perform the database operation here
+            match ce_database::get_bonuses_by_customer(request.company_id, request.customer_id)
+                .await
+            {
                 Ok(bonuses) => Ok(warp::reply::json(&bonuses)),
                 Err(e) => {
                     eprintln!("Error retrieving bonuses: {}", e);
