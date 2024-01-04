@@ -13,20 +13,20 @@ use tokio::time::{sleep, Duration};
 #[tokio::main(flavor = "current_thread")]
 async fn main() {
     //Generate Test Data
-    let (dates, company, tree, customers, orders, periods) = ce_factory::generate_test_data(10, 5);
+    // let (dates, company, tree, customers, orders, periods) = ce_factory::generate_test_data(10, 5);
 
-    // Iterate over Customers and create them in the database
-    for customer in customers.iter() {
-        let result = ce_database::create_customer(customer.clone()).await;
-        // println!("{:#?}", result);
-    }
+    // // Iterate over Customers and create them in the database
+    // for customer in customers.iter() {
+    //     let result = ce_database::create_customer(customer.clone()).await;
+    //     // println!("{:#?}", result);
+    // }
 
-    // Create Orders in the database
-    // Iterate over orders and create them in the database
-    for order in orders.iter() {
-        let result = ce_database::create_order(order.clone()).await;
-        // println!("{:#?}", result);
-    }
+    // // Create Orders in the database
+    // // Iterate over orders and create them in the database
+    // for order in orders.iter() {
+    //     let result = ce_database::create_order(order.clone()).await;
+    //     // println!("{:#?}", result);
+    // }
 
     let routes = api::routes();
 

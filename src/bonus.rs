@@ -1,6 +1,5 @@
 use super::database as ce_database;
 use super::models as ce_models;
-use tokio::time::{sleep, Duration};
 
 pub async fn calculate_bonuses(orders: &Vec<ce_models::Order>) {
     println!("Starting bonus calculation loop...");
