@@ -46,7 +46,7 @@ async fn check_for_orders_and_calculate_bonuses() {
     }
 }
 
-fn generate_test_data() {
+async fn generate_test_data() {
     // Generate Test Data
     let (dates, company, tree, customers, orders, periods) = ce_factory::generate_test_data(10, 5);
 
