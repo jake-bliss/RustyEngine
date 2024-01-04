@@ -1,8 +1,4 @@
-Connect to a Database
-Store Tree Structure in Database
-Retrieve Tree Structure from Database
+--Cache Data for Runs
+--Add Customer Info to Order Retrieval 
 
-Store Orders and Details in Database
-
---
-Create Methods to pull orders in a period
+Create EndPoint for adding a company, Just passing in the Company Name

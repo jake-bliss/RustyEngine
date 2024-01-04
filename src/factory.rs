@@ -9,7 +9,7 @@ use faker_rand::en_us::phones::PhoneNumber;
 use faker_rand::lorem::{Sentence, Word};
 use rand::Rng;
 
-pub fn create_fake_order(customer_id: i32) -> ce_models::Order {
+pub fn create_fake_order(customer_id: i32, referrer_id: Option<i32>) -> ce_models::Order {
     //Set an orderID for the order
     let order_id = Rng::gen_range(&mut rand::thread_rng(), 1..1000);
 
@@ -113,7 +113,7 @@ pub fn create_fake_order(customer_id: i32) -> ce_models::Order {
         pickup_name: None,
         total_taxable: generate_random_float_two_decimals(1.0, 500.0),
         order_sub_status_id: None,
-        referral_id: None,
+        referral_id: referrer_id,
         //Random number of order details
         order_details: (0..Rng::gen_range(&mut rand::thread_rng(), 1..10))
             .enumerate()
@@ -218,7 +218,7 @@ pub fn create_fake_company() -> ce_models::Company {
     ce_models::Company {
         company_id: company_id,
         company_name: format!("Test Company {}", company_id),
-        tree_types: vec![2],
+        tree_types: Some(vec![2]),
     }
 }
 
@@ -314,7 +314,13 @@ pub fn generate_test_data(
 
         //Generate 1-3 orders for each customer
         for _j in 1..=Rng::gen_range(&mut rand::thread_rng(), 1..orders_per_customer) {
-            let mut order = ce_factory::create_fake_order(customer.customer_id);
+            let mut order = ce_factory::create_fake_order(
+                customer.customer_id,
+                match customer.enroller_id {
+                    Some(enroller_id) => Some(enroller_id),
+                    None => Some(0), // Provide a default value for None case
+                },
+            );
 
             //Get a random date from the dates vector
             let date = dates[Rng::gen_range(&mut rand::thread_rng(), 0..(dates.len() - 1))];

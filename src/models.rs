@@ -3,11 +3,11 @@ use chrono::NaiveDateTime;
 use serde::{Deserialize, Serialize};
 use std::{clone, option::Option};
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Company {
     pub company_id: i32,
     pub company_name: String,
-    pub tree_types: Vec<i32>,
+    pub tree_types: Option<Vec<i32>>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -215,7 +215,7 @@ pub struct PeriodType {
     pub period_type_description: String,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Bonus {
     pub bonus_id: i32,
     pub bonus_name: String,
@@ -224,4 +224,5 @@ pub struct Bonus {
     pub to_customer_id: i32,
     pub source_customer_id: Option<i32>,
     pub source_order_id: Option<i32>,
+    pub company_id: i32,
 }

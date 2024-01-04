@@ -1,111 +1,65 @@
 // main.rs
+mod api;
 mod database;
 mod factory;
 mod models;
 
 // use commission_engine::database as ce_database;
+use commission_engine::bonus as ce_bonus;
 use commission_engine::database as ce_database;
 use commission_engine::factory as ce_factory;
-use commission_engine::models as ce_models;
-use futures::TryFutureExt;
-use tokio::runtime::Runtime;
+use tokio::time::{sleep, Duration};
 
 #[tokio::main(flavor = "current_thread")]
 async fn main() {
     //Generate Test Data
-    // let (dates, company, tree, customers, orders, periods) =
-    //     ce_factory::generate_test_data(100, 10);
+    // generate_test_data();
 
-    // // Find all orders that are in the first period
-    // // These are references to Orders so we can't mutate them
-    // let first_period = periods.first().unwrap();
+    let routes = api::routes();
 
-    // let orders_in_period: Vec<&ce_models::Order> = orders
-    //     .iter()
-    //     .filter(|&order| {
-    //         order.order_date >= first_period.period_start_date
-    //             && order.order_date <= first_period.period_end_date
-    //     })
-    //     .collect();
+    // Start the bonus calculation loop
+    tokio::spawn(async move {
+        check_for_orders_and_calculate_bonuses().await;
+    });
 
-    // //Print Each order in the first period and their OrderID, CustomerID, and Order Date
-    // for order in orders_in_period.iter() {
-    //     println!(
-    //         "Order ID: {}, Customer ID: {}, Order Date: {}",
-    //         order.order_id, order.customer_id, order.order_date
-    //     );
-    // }
+    let port = std::env::var("PORT")
+        .unwrap_or_else(|_| String::from("3030"))
+        .parse()
+        .expect("PORT must be a number");
 
-    // //Create a Vector of Bonuses
-    // let mut bonuses: Vec<ce_models::Bonus> = Vec::new();
+    warp::serve(routes).run(([0, 0, 0, 0], port)).await;
+}
 
-    // //Iterate over orders in the first period
-    // //We will want to create a bonus for each order if applicable
-    // for order in orders_in_period.iter() {
-    //     //Find the customer that placed the order
-    //     let customer = customers
-    //         .iter()
-    //         .find(|&customer| customer.customer_id == order.customer_id)
-    //         .unwrap();
+async fn check_for_orders_and_calculate_bonuses() {
+    loop {
+        sleep(Duration::from_secs(900)).await; // Sleep for 5 minutes
 
-    //     //See if the customer has an enroller
-    //     if let Some(enroller_id) = customer.enroller_id {
-    //         //Create a bonus for the enroller
-    //         let bonus = ce_models::Bonus {
-    //             bonus_id: 1,
-    //             bonus_name: "Retail Bonus".to_string(),
-    //             bonus_percentage: 20.0,
-    //             bonus_amount: order.commissionable_volume_total * 0.2,
-    //             to_customer_id: enroller_id,
-    //             source_customer_id: Some(customer.customer_id),
-    //             source_order_id: Some(order.order_id),
-    //         };
+        let orders = match ce_database::get_orders().await {
+            Ok(orders) => orders,
+            Err(e) => {
+                eprintln!("Failed to get orders: {}", e);
+                continue;
+            }
+        };
 
-    //         //Add the bonus to the vector
-    //         bonuses.push(bonus);
-    //     }
-    // }
+        ce_bonus::calculate_bonuses(&orders).await;
+    }
+}
 
-    // //Print Each BonusID and their BonusName, BonusPercentage, BonusAmount, ToCustomerID, SourceCustomerID, and SourceOrderID
-    // for bonus in bonuses.iter() {
-    //     println!(
-    //         "Bonus ID: {}, Bonus Name: {}, Bonus Percentage: {}, Bonus Amount: {}, To Customer ID: {}, Source Customer ID: {:?}, Source Order ID: {:?}",
-    //         bonus.bonus_id,
-    //         bonus.bonus_name,
-    //         bonus.bonus_percentage,
-    //         bonus.bonus_amount,
-    //         bonus.to_customer_id,
-    //         bonus.source_customer_id,
-    //         bonus.source_order_id
-    //     );
-    // }
-
-    // let result = ce_database::get_period_statuses();
-
-    // println!("{:#?}", result);
-
-    // let period = ce_database::get_periods(Some(12)).await;
-    // println!("{:#?}", period);
-
-    // let result = ce_database::get_orders().await;
-    // println!("{:#?}", result);
-
-    //Generate Test Data
-    let (dates, company, tree, customers, orders, periods) = ce_factory::generate_test_data(3, 3);
+async fn generate_test_data() {
+    // Generate Test Data
+    let (dates, company, tree, customers, orders, periods) = ce_factory::generate_test_data(10, 5);
 
     // Iterate over Customers and create them in the database
     for customer in customers.iter() {
         let result = ce_database::create_customer(customer.clone()).await;
-        println!("{:#?}", result);
+        // println!("{:#?}", result);
     }
 
     // Create Orders in the database
     // Iterate over orders and create them in the database
     for order in orders.iter() {
         let result = ce_database::create_order(order.clone()).await;
-        println!("{:#?}", result);
+        // println!("{:#?}", result);
     }
-
-    let orders = ce_database::get_orders_in_period(1).await;
-    println!("{:#?}", orders);
 }

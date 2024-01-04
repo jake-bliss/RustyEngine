@@ -1,6 +1,7 @@
 use super::models as ce_models;
 use chrono::NaiveDateTime;
-use futures::future::join_all;
+use faker_rand::en_us::company;
+use futures::future::{join_all, ok};
 use sqlx::mysql::MySqlPool;
 use sqlx::types::time::PrimitiveDateTime;
 use std::env;
@@ -337,7 +338,10 @@ pub async fn get_orders() -> Result<Vec<ce_models::Order>, Box<dyn std::error::E
                         row.tax_integration_calculate.unwrap_or(0) != 0,
                     ),
                     tax_integration_commit: Some(row.tax_integration_commit.unwrap_or(0) != 0),
-                    handling_fee: Some(f64::from(row.handling_fee.unwrap() as f64)),
+                    handling_fee: match row.handling_fee {
+                        Some(value) => Some(f64::from(value as f64)),
+                        None => None,
+                    },
                     pickup_name: row.pickup_name,
                     total_taxable: f64::from(row.total_taxable.unwrap() as f64),
                     order_sub_status_id: row.order_sub_status_id,
@@ -483,14 +487,32 @@ pub async fn get_orders_in_period(
                 locked_date,
                 modified_date,
                 created_by: row.created_by.unwrap_or_default(),
-                modified_by: row.modified_by,
-                tax_integration_calculate: Some(row.tax_integration_calculate.unwrap_or(0) != 0),
-                tax_integration_commit: Some(row.tax_integration_commit.unwrap_or(0) != 0),
-                handling_fee: Some(f64::from(row.handling_fee.unwrap() as f64)),
+                modified_by: match row.modified_by {
+                    Some(value) => Some(value),
+                    None => None,
+                },
+                tax_integration_calculate: match row.tax_integration_calculate {
+                    Some(value) => Some(value != 0),
+                    None => None,
+                },
+                tax_integration_commit: match row.tax_integration_commit {
+                    Some(value) => Some(value != 0),
+                    None => None,
+                },
+                handling_fee: match row.handling_fee {
+                    Some(value) => Some(f64::from(value as f64)),
+                    None => None,
+                },
                 pickup_name: row.pickup_name,
                 total_taxable: f64::from(row.total_taxable.unwrap() as f64),
-                order_sub_status_id: row.order_sub_status_id,
-                referral_id: row.referral_id,
+                order_sub_status_id: match row.order_sub_status_id {
+                    Some(value) => Some(value),
+                    None => None,
+                },
+                referral_id: match row.referral_id {
+                    Some(value) => Some(value),
+                    None => None,
+                },
                 order_details: order_details.unwrap(),
             }
         })
@@ -509,10 +531,6 @@ pub async fn create_order(order: ce_models::Order) -> Result<(), Box<dyn std::er
     dotenv::dotenv().ok();
 
     let pool = MySqlPool::connect(&env::var("DATABASE_URL")?).await?;
-
-    //Print the order
-
-    println!("{:#?}", order);
 
     //Create the order
     let order_id = sqlx::query(
@@ -679,13 +697,10 @@ pub async fn create_order(order: ce_models::Order) -> Result<(), Box<dyn std::er
     .bind(order.decline_count)
     .bind(order.transfer_to_customer_id)
     .bind(order.party_id)
-    .bind(
-        order
-            .shipped_date
-            .unwrap()
-            .format("%Y-%m-%d %H:%M:%S")
-            .to_string(),
-    )
+    .bind(match order.shipped_date {
+        Some(date) => date.format("%Y-%m-%d %H:%M:%S").to_string(),
+        None => String::new(), // or any other default value you want to use
+    })
     .bind(order.created_date.format("%Y-%m-%d %H:%M:%S").to_string())
     .bind(
         order
@@ -722,9 +737,6 @@ pub async fn create_order_detail(
     dotenv::dotenv().ok();
 
     let pool = MySqlPool::connect(&env::var("DATABASE_URL")?).await?;
-
-    //Print the order detail
-    println!("{:?}", order_detail);
 
     //Create the order detail
     let order_detail_id = sqlx::query(
@@ -871,6 +883,209 @@ pub async fn create_customer(
     .execute(&pool)
     .await?
     .last_insert_id();
+
+    // Return Ok
+
+    Ok(())
+}
+
+//Get Company
+
+pub async fn get_company(
+    company_id: Option<i32>,
+) -> Result<Vec<ce_models::Company>, Box<dyn std::error::Error>> {
+    dotenv::dotenv().ok();
+
+    let pool = MySqlPool::connect(&env::var("DATABASE_URL")?).await?;
+
+    //Get the companies
+    let companies = sqlx::query!("SELECT * FROM Company;",)
+        .map(|row| ce_models::Company {
+            company_id: row.company_id,
+            company_name: row.company_name.unwrap_or_default(),
+            tree_types: Some(vec![]),
+        })
+        .fetch_all(&pool)
+        .await?;
+
+    Ok(companies) // Wrap the `companies` variable in the `Ok()` variant of the `Result` enum.
+}
+
+//Create Company
+
+pub async fn create_company(company: ce_models::Company) -> Result<(), Box<dyn std::error::Error>> {
+    dotenv::dotenv().ok();
+
+    let pool = MySqlPool::connect(&env::var("DATABASE_URL")?).await?;
+
+    //Create the company
+    let company_id = sqlx::query(
+        r#"
+        INSERT INTO Company
+        SET company_id = ?,
+            company_name = ?;
+        "#,
+    )
+    .bind(company.company_id)
+    .bind(company.company_name)
+    .execute(&pool)
+    .await?
+    .last_insert_id();
+
+    // Return Ok
+
+    Ok(())
+}
+
+//Get Bonuses
+
+pub async fn get_bonuses(
+    company_id: i32,
+    bonus_id: Option<i32>,
+) -> Result<Vec<ce_models::Bonus>, Box<dyn std::error::Error>> {
+    dotenv::dotenv().ok();
+
+    let pool = MySqlPool::connect(&env::var("DATABASE_URL")?).await?;
+    //Get the bonuses
+    let bonuses = sqlx::query!("SELECT * FROM Bonus WHERE company_id = ?;", company_id)
+        .map(|row| {
+            let bonus_id = match row.bonus_id {
+                Some(id) => id,
+                None => Default::default(),
+            };
+            let bonus_name = match row.bonus_name {
+                Some(name) => name,
+                None => Default::default(),
+            };
+            let bonus_percentage = match row.bonus_percentage {
+                Some(percentage) => percentage as f64,
+                None => Default::default(),
+            };
+            let bonus_amount = match row.bonus_amount {
+                Some(amount) => amount as f64,
+                None => Default::default(),
+            };
+            let to_customer_id = match row.to_customer_id {
+                Some(id) => id,
+                None => Default::default(),
+            };
+            let source_customer_id = match row.source_customer_id {
+                Some(id) => Some(id),
+                None => Default::default(),
+            };
+            let source_order_id = match row.source_order_id {
+                Some(id) => Some(id),
+                None => Default::default(),
+            };
+            let company_id = match row.company_id {
+                Some(id) => id,
+                None => Default::default(),
+            };
+
+            ce_models::Bonus {
+                bonus_id,
+                bonus_name,
+                bonus_percentage,
+                bonus_amount,
+                to_customer_id,
+                source_customer_id,
+                source_order_id,
+                company_id,
+            }
+        })
+        .fetch_all(&pool)
+        .await?;
+
+    //If the BonusID is specified, filter the bonuses
+    if let Some(bonus_id) = bonus_id {
+        return Ok(bonuses
+            .into_iter()
+            .filter(|bonus| bonus.bonus_id == bonus_id)
+            .collect());
+    }
+
+    //Return the bonuses
+
+    Ok(bonuses)
+}
+
+// Create or Update Bonus
+
+pub async fn create_or_update_bonus(
+    bonus: ce_models::Bonus,
+) -> Result<(), Box<dyn std::error::Error>> {
+    dotenv::dotenv().ok();
+    println!("Bonus: {:?}", bonus);
+
+    let pool = MySqlPool::connect(&env::var("DATABASE_URL")?).await?;
+
+    // Check if the bonus record already exists
+    let existing_bonus = sqlx::query!(
+        r#"
+            SELECT COUNT(*) as count
+            FROM Bonus
+            WHERE bonus_id = ? AND
+                to_customer_id = ? AND
+                company_id = ? AND
+                source_order_id = ?;
+        "#,
+        bonus.bonus_id,
+        bonus.to_customer_id,
+        bonus.company_id,
+        bonus.source_order_id
+    )
+    .fetch_one(&pool)
+    .await?;
+
+    if existing_bonus.count > 0 {
+        // Update the existing bonus record
+        sqlx::query(
+            r#"
+                UPDATE Bonus
+                SET bonus_name = ?,
+                    bonus_percentage = ?,
+                    bonus_amount = ?
+                WHERE bonus_id = ? AND
+                    to_customer_id = ? AND
+                    company_id = ? AND
+                    source_order_id = ?;
+            "#,
+        )
+        .bind(bonus.bonus_name)
+        .bind(bonus.bonus_percentage)
+        .bind(bonus.bonus_amount)
+        .bind(bonus.bonus_id)
+        .bind(bonus.to_customer_id)
+        .bind(bonus.company_id)
+        .bind(bonus.source_order_id)
+        .execute(&pool)
+        .await?;
+    } else {
+        // Create the new bonus record
+        sqlx::query(
+            r#"
+                INSERT INTO Bonus
+                SET bonus_id = ?,
+                    bonus_name = ?,
+                    bonus_percentage = ?,
+                    bonus_amount = ?,
+                    to_customer_id = ?,
+                    source_customer_id = ?,
+                    source_order_id = ?,
+                    company_id = ?;
+            "#,
+        )
+        .bind(bonus.bonus_id)
+        .bind(bonus.bonus_name)
+        .bind(bonus.bonus_percentage)
+        .bind(bonus.bonus_amount)
+        .bind(bonus.to_customer_id)
+        .bind(bonus.source_customer_id)
+        .bind(bonus.source_order_id)
+        .bind(bonus.company_id)
+        .execute(&pool)
+        .await?;
+    }
 
     // Return Ok
 
