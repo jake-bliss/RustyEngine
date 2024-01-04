@@ -131,7 +131,7 @@ struct GetBonusesRequest {
 fn get_bonuses_route() -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
     authenticate()
         .and(warp::path!("bonuses"))
-        .and(warp::get())
+        .and(warp::post())
         .and(warp::body::json())
         .and_then(|_, request: GetBonusesRequest| async move {
             // Perform the database operation here
