@@ -7,6 +7,12 @@ use sqlx::types::time::PrimitiveDateTime;
 use std::env;
 use std::option::Option; // Add this import at the top
 
+pub async fn get_pool() -> MySqlPool {
+    MySqlPool::connect(&env::var("DATABASE_URL").unwrap())
+        .await
+        .unwrap()
+}
+
 fn convert_to_naive_date_time(d: PrimitiveDateTime) -> chrono::NaiveDateTime {
     chrono::NaiveDateTime::new(
         chrono::NaiveDate::from_ymd_opt(
@@ -24,18 +30,16 @@ fn convert_to_naive_date_time(d: PrimitiveDateTime) -> chrono::NaiveDateTime {
     )
 }
 
-pub async fn get_period_types() -> Result<Vec<ce_models::PeriodType>, Box<dyn std::error::Error>> {
-    dotenv::dotenv().ok();
-
-    let pool = MySqlPool::connect(&env::var("DATABASE_URL")?).await?;
-
+pub async fn get_period_types(
+    pool: &sqlx::MySqlPool,
+) -> Result<Vec<ce_models::PeriodType>, Box<dyn std::error::Error>> {
     //Get the period types
     let period_types = sqlx::query!("SELECT * FROM PeriodType;",)
         .map(|row| ce_models::PeriodType {
             period_type_id: row.period_type_id,
             period_type_description: row.type_description.unwrap_or_default(),
         })
-        .fetch_all(&pool)
+        .fetch_all(pool)
         .await?;
 
     //Return the period types
@@ -43,36 +47,31 @@ pub async fn get_period_types() -> Result<Vec<ce_models::PeriodType>, Box<dyn st
 }
 
 pub async fn get_period_statuses(
+    pool: &sqlx::MySqlPool,
 ) -> Result<Vec<ce_models::PeriodStatus>, Box<dyn std::error::Error>> {
-    dotenv::dotenv().ok();
-
-    let pool = MySqlPool::connect(&env::var("DATABASE_URL")?).await?;
-
     //Get the period statuses
     let period_statuses = sqlx::query!("SELECT * FROM PeriodStatus;",)
         .map(|row| ce_models::PeriodStatus {
             period_status_id: row.period_status_id,
             period_status_description: row.status_description.unwrap_or_default(),
         })
-        .fetch_all(&pool)
+        .fetch_all(pool)
         .await?;
 
     //Return the period statuses
     Ok(period_statuses)
 }
 
-pub async fn get_tree_types() -> Result<Vec<ce_models::TreeType>, Box<dyn std::error::Error>> {
-    dotenv::dotenv().ok();
-
-    let pool = MySqlPool::connect(&env::var("DATABASE_URL")?).await?;
-
+pub async fn get_tree_types(
+    pool: &sqlx::MySqlPool,
+) -> Result<Vec<ce_models::TreeType>, Box<dyn std::error::Error>> {
     //Get the tree types
     let tree_types = sqlx::query!("SELECT * FROM TreeType;",)
         .map(|row| ce_models::TreeType {
             tree_type_id: row.tree_type_id,
             tree_type_description: row.type_description.unwrap_or_default(),
         })
-        .fetch_all(&pool)
+        .fetch_all(pool)
         .await?;
 
     //Return the tree types
@@ -81,11 +80,8 @@ pub async fn get_tree_types() -> Result<Vec<ce_models::TreeType>, Box<dyn std::e
 
 pub async fn get_periods(
     period_id: Option<i32>,
+    pool: &sqlx::MySqlPool,
 ) -> Result<Vec<ce_models::Period>, Box<dyn std::error::Error>> {
-    dotenv::dotenv().ok();
-
-    let pool = MySqlPool::connect(&env::var("DATABASE_URL")?).await?;
-
     //Get the periods
     let periods = sqlx::query!("SELECT * FROM Period;",)
         .map(|row| {
@@ -111,7 +107,7 @@ pub async fn get_periods(
                 modified_by: row.modified_by,
             }
         })
-        .fetch_all(&pool)
+        .fetch_all(pool)
         .await?;
 
     //If the PeriodID is specified, filter the periods
@@ -126,11 +122,9 @@ pub async fn get_periods(
     Ok(periods)
 }
 
-pub async fn get_trees() -> Result<Vec<ce_models::Tree>, Box<dyn std::error::Error>> {
-    dotenv::dotenv().ok();
-
-    let pool = MySqlPool::connect(&env::var("DATABASE_URL")?).await?;
-
+pub async fn get_trees(
+    pool: &sqlx::MySqlPool,
+) -> Result<Vec<ce_models::Tree>, Box<dyn std::error::Error>> {
     //Get the trees
     let trees = sqlx::query!("SELECT * FROM Tree;",)
         .map(|row| {
@@ -150,7 +144,7 @@ pub async fn get_trees() -> Result<Vec<ce_models::Tree>, Box<dyn std::error::Err
                 top_node_customer_id: row.top_node_customer_id.unwrap(),
             }
         })
-        .fetch_all(&pool)
+        .fetch_all(pool)
         .await?;
 
     //Return the trees
@@ -159,11 +153,8 @@ pub async fn get_trees() -> Result<Vec<ce_models::Tree>, Box<dyn std::error::Err
 
 pub async fn get_order_details(
     order_id: i32,
+    pool: &sqlx::MySqlPool,
 ) -> Result<Vec<ce_models::OrderDetail>, Box<dyn std::error::Error>> {
-    dotenv::dotenv().ok();
-
-    let pool = MySqlPool::connect(&env::var("DATABASE_URL")?).await?;
-
     //Get the order details
     let order_details = sqlx::query!("SELECT * FROM OrderDetail WHERE order_id = ?;", order_id)
         .map(|row| ce_models::OrderDetail {
@@ -224,18 +215,16 @@ pub async fn get_order_details(
             is_state_tax_override: row.is_state_tax_override.unwrap_or(0) != 0,
             reference1: row.reference1,
         })
-        .fetch_all(&pool)
+        .fetch_all(pool)
         .await?;
 
     //Return the order details
     Ok(order_details)
 }
 
-pub async fn get_orders() -> Result<Vec<ce_models::Order>, Box<dyn std::error::Error>> {
-    dotenv::dotenv().ok();
-
-    let pool = MySqlPool::connect(&env::var("DATABASE_URL")?).await?;
-
+pub async fn get_orders(
+    pool: &sqlx::MySqlPool,
+) -> Result<Vec<ce_models::Order>, Box<dyn std::error::Error>> {
     //Get the orders
     let orders = sqlx::query!("SELECT * FROM Orders;",)
         .map(|row| {
@@ -250,7 +239,7 @@ pub async fn get_orders() -> Result<Vec<ce_models::Order>, Box<dyn std::error::E
 
                 //Get OrderDetails for the order
 
-                let order_details = get_order_details(row.order_id).await;
+                let order_details = get_order_details(row.order_id, pool).await;
 
                 ce_models::Order {
                     order_id: row.order_id,
@@ -350,7 +339,7 @@ pub async fn get_orders() -> Result<Vec<ce_models::Order>, Box<dyn std::error::E
                 }
             })
         })
-        .fetch_all(&pool)
+        .fetch_all(pool)
         .await?;
 
     //Return the orders
@@ -362,10 +351,9 @@ pub async fn get_orders() -> Result<Vec<ce_models::Order>, Box<dyn std::error::E
 
 pub async fn get_orders_in_period(
     period_id: i32,
+    pool: &sqlx::MySqlPool,
 ) -> Result<Vec<ce_models::Order>, Box<dyn std::error::Error>> {
-    dotenv::dotenv().ok();
-
-    let period = get_periods(Some(period_id)).await?;
+    let period = get_periods(Some(period_id), pool).await?;
 
     // If vec is not empty, get the first element
     let period = if !period.is_empty() {
@@ -386,8 +374,6 @@ pub async fn get_orders_in_period(
     let start_date = start_date.format("%Y-%m-%d %H:%M:%S").to_string();
     let end_date = end_date.format("%Y-%m-%d %H:%M:%S").to_string();
 
-    let pool = MySqlPool::connect(&env::var("DATABASE_URL")?).await?;
-
     //Get the orders
     let orders = sqlx::query!(
         "SELECT * FROM Orders WHERE order_date >= ? AND order_date <= ?;",
@@ -406,7 +392,7 @@ pub async fn get_orders_in_period(
 
             //Get OrderDetails for the order
 
-            let order_details = get_order_details(row.order_id).await;
+            let order_details = get_order_details(row.order_id, pool).await;
 
             ce_models::Order {
                 order_id: row.order_id,
@@ -517,7 +503,7 @@ pub async fn get_orders_in_period(
             }
         })
     })
-    .fetch_all(&pool)
+    .fetch_all(pool)
     .await?;
 
     //Return the orders
@@ -527,10 +513,11 @@ pub async fn get_orders_in_period(
     Ok(orders)
 }
 
-pub async fn create_order(order: ce_models::Order) -> Result<(), Box<dyn std::error::Error>> {
-    dotenv::dotenv().ok();
-
-    let pool = MySqlPool::connect(&env::var("DATABASE_URL")?).await?;
+pub async fn create_order(
+    order: ce_models::Order,
+    pool: &sqlx::MySqlPool,
+) -> Result<(), Box<dyn std::error::Error>> {
+    // let pool = MySqlPool::connect(&env::var("DATABASE_URL")?).await?;
 
     //Create the order
     let order_id = sqlx::query(
@@ -717,13 +704,13 @@ pub async fn create_order(order: ce_models::Order) -> Result<(), Box<dyn std::er
     .bind(order.total_taxable)
     .bind(order.order_sub_status_id)
     .bind(order.referral_id)
-    .execute(&pool)
+    .execute(pool)
     .await?
     .last_insert_id();
 
     // Create the order details
     for order_detail in order.order_details {
-        create_order_detail(order_detail).await?;
+        create_order_detail(order_detail, pool).await?;
     }
 
     // Return Ok
@@ -733,11 +720,8 @@ pub async fn create_order(order: ce_models::Order) -> Result<(), Box<dyn std::er
 
 pub async fn create_order_detail(
     order_detail: ce_models::OrderDetail,
+    pool: &sqlx::MySqlPool,
 ) -> Result<(), Box<dyn std::error::Error>> {
-    dotenv::dotenv().ok();
-
-    let pool = MySqlPool::connect(&env::var("DATABASE_URL")?).await?;
-
     //Create the order detail
     let order_detail_id = sqlx::query(
         r#"
@@ -844,7 +828,7 @@ pub async fn create_order_detail(
     .bind(order_detail.manual_tax)
     .bind(order_detail.is_state_tax_override)
     .bind(order_detail.reference1)
-    .execute(&pool)
+    .execute(pool)
     .await?
     .last_insert_id();
 
@@ -855,11 +839,8 @@ pub async fn create_order_detail(
 
 pub async fn create_customer(
     customer: ce_models::Customer,
+    pool: &sqlx::MySqlPool,
 ) -> Result<(), Box<dyn std::error::Error>> {
-    dotenv::dotenv().ok();
-
-    let pool = MySqlPool::connect(&env::var("DATABASE_URL")?).await?;
-
     //Create the customer
     let customer_id = sqlx::query(
         r#"
@@ -880,7 +861,7 @@ pub async fn create_customer(
     .bind(customer.enroller_id)
     .bind(customer.sponsor_id)
     .bind(customer.binary_placement_id)
-    .execute(&pool)
+    .execute(pool)
     .await?
     .last_insert_id();
 
@@ -893,11 +874,8 @@ pub async fn create_customer(
 
 pub async fn get_company(
     company_id: Option<i32>,
+    pool: &sqlx::MySqlPool,
 ) -> Result<Vec<ce_models::Company>, Box<dyn std::error::Error>> {
-    dotenv::dotenv().ok();
-
-    let pool = MySqlPool::connect(&env::var("DATABASE_URL")?).await?;
-
     //Get the companies
     let companies = sqlx::query!("SELECT * FROM Company;",)
         .map(|row| ce_models::Company {
@@ -905,7 +883,7 @@ pub async fn get_company(
             company_name: row.company_name.unwrap_or_default(),
             tree_types: Some(vec![]),
         })
-        .fetch_all(&pool)
+        .fetch_all(pool)
         .await?;
 
     Ok(companies) // Wrap the `companies` variable in the `Ok()` variant of the `Result` enum.
@@ -913,11 +891,10 @@ pub async fn get_company(
 
 //Create Company
 
-pub async fn create_company(company: ce_models::Company) -> Result<(), Box<dyn std::error::Error>> {
-    dotenv::dotenv().ok();
-
-    let pool = MySqlPool::connect(&env::var("DATABASE_URL")?).await?;
-
+pub async fn create_company(
+    company: ce_models::Company,
+    pool: &sqlx::MySqlPool,
+) -> Result<(), Box<dyn std::error::Error>> {
     //Create the company
     let company_id = sqlx::query(
         r#"
@@ -928,7 +905,7 @@ pub async fn create_company(company: ce_models::Company) -> Result<(), Box<dyn s
     )
     .bind(company.company_id)
     .bind(company.company_name)
-    .execute(&pool)
+    .execute(pool)
     .await?
     .last_insert_id();
 
@@ -942,10 +919,8 @@ pub async fn create_company(company: ce_models::Company) -> Result<(), Box<dyn s
 pub async fn get_bonuses(
     company_id: i32,
     bonus_id: Option<i32>,
+    pool: &sqlx::MySqlPool,
 ) -> Result<Vec<ce_models::Bonus>, Box<dyn std::error::Error>> {
-    dotenv::dotenv().ok();
-
-    let pool = MySqlPool::connect(&env::var("DATABASE_URL")?).await?;
     //Get the bonuses
     let bonuses = sqlx::query!("SELECT * FROM Bonus WHERE company_id = ?;", company_id)
         .map(|row| {
@@ -993,7 +968,7 @@ pub async fn get_bonuses(
                 company_id,
             }
         })
-        .fetch_all(&pool)
+        .fetch_all(pool)
         .await?;
 
     //If the BonusID is specified, filter the bonuses
@@ -1012,10 +987,8 @@ pub async fn get_bonuses(
 pub async fn get_bonuses_by_customer(
     company_id: i32,
     customer_id: i32,
+    pool: &sqlx::MySqlPool,
 ) -> Result<Vec<ce_models::Bonus>, Box<dyn std::error::Error>> {
-    dotenv::dotenv().ok();
-
-    let pool = MySqlPool::connect(&env::var("DATABASE_URL")?).await?;
     //Get the bonuses
     let bonuses = sqlx::query!(
         "SELECT * FROM Bonus WHERE company_id = ? AND to_customer_id = ?;",
@@ -1067,7 +1040,7 @@ pub async fn get_bonuses_by_customer(
             company_id,
         }
     })
-    .fetch_all(&pool)
+    .fetch_all(pool)
     .await?;
 
     //Return the bonuses
@@ -1079,11 +1052,9 @@ pub async fn get_bonuses_by_customer(
 
 pub async fn create_or_update_bonus(
     bonus: ce_models::Bonus,
+    pool: &sqlx::MySqlPool,
 ) -> Result<(), Box<dyn std::error::Error>> {
-    dotenv::dotenv().ok();
     println!("Bonus: {:?}", bonus);
-
-    let pool = MySqlPool::connect(&env::var("DATABASE_URL")?).await?;
 
     // Check if the bonus record already exists
     let existing_bonus = sqlx::query!(
@@ -1100,7 +1071,7 @@ pub async fn create_or_update_bonus(
         bonus.company_id,
         bonus.source_order_id
     )
-    .fetch_one(&pool)
+    .fetch_one(pool)
     .await?;
 
     if existing_bonus.count > 0 {
@@ -1124,7 +1095,7 @@ pub async fn create_or_update_bonus(
         .bind(bonus.to_customer_id)
         .bind(bonus.company_id)
         .bind(bonus.source_order_id)
-        .execute(&pool)
+        .execute(pool)
         .await?;
     } else {
         // Create the new bonus record
@@ -1149,7 +1120,7 @@ pub async fn create_or_update_bonus(
         .bind(bonus.source_customer_id)
         .bind(bonus.source_order_id)
         .bind(bonus.company_id)
-        .execute(&pool)
+        .execute(pool)
         .await?;
     }
 

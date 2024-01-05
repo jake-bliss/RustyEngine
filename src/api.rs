@@ -7,13 +7,15 @@ use warp::reject::Reject;
 use warp::Filter;
 
 // Define your API endpoints
-pub fn routes() -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
+pub fn routes(
+    pool: &sqlx::MySqlPool,
+) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
     hello_route()
-        .or(create_customer_route())
-        .or(order_route())
-        .or(company_route())
-        .or(get_bonuses_route())
-        .or(get_bonuses_by_customer_route())
+        .or(create_customer_route(pool.clone()))
+        .or(order_route(pool.clone()))
+        .or(company_route(pool.clone()))
+        .or(get_bonuses_route(pool.clone()))
+        .or(get_bonuses_by_customer_route(pool.clone()))
 }
 
 //Handle Custom Errors
@@ -64,63 +66,89 @@ fn authenticate() -> impl Filter<Extract = ((),), Error = warp::Rejection> + Cop
 
 //This Route will recieve a JSON object and return a JSON object
 fn create_customer_route(
+    pool: sqlx::MySqlPool,
 ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
+    let pool = warp::any().map(move || pool.clone());
     authenticate()
         .and(warp::path!("create_customer"))
         .and(warp::post())
         .and(warp::body::json())
-        .map(|_, customer: ce_models::Customer| {
-            // Modify the closure to take two arguments
-            println!("Customer: {:?}", customer);
-            warp::reply::json(&customer)
-        })
+        .and(pool.clone())
+        .and_then(
+            |_, customer: ce_models::Customer, pool: sqlx::MySqlPool| async move {
+                println!("Customer: {:?}", customer);
+
+                // Perform the database operation here
+                match ce_database::create_customer(customer.clone(), &pool).await {
+                    Ok(_) => Ok(warp::reply::json(&customer)),
+                    Err(e) => {
+                        eprintln!("Error creating customer: {}", e);
+                        Err(warp::reject::custom(CustomError {}))
+                    }
+                }
+            },
+        )
 }
 
-async fn order_handler(order: ce_models::Order) -> Result<impl warp::Reply, warp::Rejection> {
+async fn order_handler(
+    order: ce_models::Order,
+    pool: &sqlx::MySqlPool,
+) -> Result<impl warp::Reply, warp::Rejection> {
     println!("Order: {:?}", order);
 
     // Create order in database
-    ce_database::create_order(order.clone()).await;
+    ce_database::create_order(order.clone(), &pool).await;
 
     Ok(warp::reply::json(&order))
 }
 
-fn order_route() -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
+fn order_route(
+    pool: sqlx::MySqlPool,
+) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
+    let pool = warp::any().map(move || pool.clone());
     authenticate()
         .and(warp::path!("order"))
         .and(warp::post())
         .and(warp::body::json())
-        .and_then(|_, order: ce_models::Order| async move {
-            println!("Order: {:?}", order);
+        .and(pool.clone())
+        .and_then(
+            |_, order: ce_models::Order, pool: sqlx::MySqlPool| async move {
+                println!("Order: {:?}", order);
 
-            // Perform the database operation here
-            match ce_database::create_order(order.clone()).await {
-                Ok(_) => Ok(warp::reply::json(&order)),
-                Err(e) => {
-                    eprintln!("Error creating order: {}", e);
-                    Err(warp::reject::custom(CustomError {}))
+                // Perform the database operation here
+                match ce_database::create_order(order.clone(), &pool).await {
+                    Ok(_) => Ok(warp::reply::json(&order)),
+                    Err(e) => {
+                        eprintln!("Error creating order: {}", e);
+                        Err(warp::reject::custom(CustomError {}))
+                    }
                 }
-            }
-        })
+            },
+        )
 }
 
-fn company_route() -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
+fn company_route(
+    pool: sqlx::MySqlPool,
+) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
     authenticate()
         .and(warp::path!("company"))
         .and(warp::post())
         .and(warp::body::json())
-        .and_then(|_, company: ce_models::Company| async move {
-            println!("Company: {:?}", company);
+        .and(warp::any().map(move || pool.clone()))
+        .and_then(
+            |_, company: ce_models::Company, pool: sqlx::MySqlPool| async move {
+                println!("Company: {:?}", company);
 
-            // Perform the database operation here
-            match ce_database::create_company(company.clone()).await {
-                Ok(_) => Ok(warp::reply::json(&company)),
-                Err(e) => {
-                    eprintln!("Error creating company: {}", e);
-                    Err(warp::reject::custom(CustomError {}))
+                // Perform the database operation here
+                match ce_database::create_company(company.clone(), &pool).await {
+                    Ok(_) => Ok(warp::reply::json(&company)),
+                    Err(e) => {
+                        eprintln!("Error creating company: {}", e);
+                        Err(warp::reject::custom(CustomError {}))
+                    }
                 }
-            }
-        })
+            },
+        )
 }
 
 #[derive(serde::Deserialize)]
@@ -129,21 +157,27 @@ struct GetBonusesRequest {
     bonus_id: Option<i32>,
 }
 
-fn get_bonuses_route() -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
+fn get_bonuses_route(
+    pool: sqlx::MySqlPool,
+) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
+    let pool = warp::any().map(move || pool.clone());
     authenticate()
         .and(warp::path!("bonuses"))
         .and(warp::post())
         .and(warp::body::json())
-        .and_then(|_, request: GetBonusesRequest| async move {
-            // Perform the database operation here
-            match ce_database::get_bonuses(request.company_id, request.bonus_id).await {
-                Ok(bonuses) => Ok(warp::reply::json(&bonuses)),
-                Err(e) => {
-                    eprintln!("Error retrieving bonuses: {}", e);
-                    Err(warp::reject::custom(CustomError {}))
+        .and(pool.clone())
+        .and_then(
+            |_, request: GetBonusesRequest, pool: sqlx::MySqlPool| async move {
+                // Perform the database operation here
+                match ce_database::get_bonuses(request.company_id, request.bonus_id, &pool).await {
+                    Ok(bonuses) => Ok(warp::reply::json(&bonuses)),
+                    Err(e) => {
+                        eprintln!("Error retrieving bonuses: {}", e);
+                        Err(warp::reject::custom(CustomError {}))
+                    }
                 }
-            }
-        })
+            },
+        )
 }
 
 #[derive(serde::Deserialize)]
@@ -154,21 +188,30 @@ struct GetBonusesByCustomerRequest {
 }
 
 fn get_bonuses_by_customer_route(
+    pool: sqlx::MySqlPool,
 ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
+    let pool = warp::any().map(move || pool.clone());
     authenticate()
         .and(warp::path!("bonuses_by_customer"))
         .and(warp::post())
         .and(warp::body::json())
-        .and_then(|_, request: GetBonusesByCustomerRequest| async move {
-            // Perform the database operation here
-            match ce_database::get_bonuses_by_customer(request.company_id, request.customer_id)
+        .and(pool.clone())
+        .and_then(
+            |_, request: GetBonusesByCustomerRequest, pool: sqlx::MySqlPool| async move {
+                // Perform the database operation here
+                match ce_database::get_bonuses_by_customer(
+                    request.company_id,
+                    request.customer_id,
+                    &pool,
+                )
                 .await
-            {
-                Ok(bonuses) => Ok(warp::reply::json(&bonuses)),
-                Err(e) => {
-                    eprintln!("Error retrieving bonuses: {}", e);
-                    Err(warp::reject::custom(CustomError {}))
+                {
+                    Ok(bonuses) => Ok(warp::reply::json(&bonuses)),
+                    Err(e) => {
+                        eprintln!("Error retrieving bonuses: {}", e);
+                        Err(warp::reject::custom(CustomError {}))
+                    }
                 }
-            }
-        })
+            },
+        )
 }
