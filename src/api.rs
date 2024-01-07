@@ -22,7 +22,7 @@ pub fn routes(
 
 #[derive(Debug)]
 struct CustomError {
-    // Your error fields here
+    message: String,
 }
 
 impl StdError for CustomError {}
@@ -31,8 +31,7 @@ impl Reject for CustomError {}
 
 impl std::fmt::Display for CustomError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        // Implement the formatting logic for CustomError here
-        write!(f, "CustomError")
+        write!(f, "CustomError: {}", self.message)
     }
 }
 
@@ -55,10 +54,14 @@ fn authenticate() -> impl Filter<Extract = ((),), Error = warp::Rejection> + Cop
                     if token == expected_token {
                         Ok(())
                     } else {
-                        Err(warp::reject::custom(CustomError {}))
+                        Err(warp::reject::custom(CustomError {
+                            message: "Invalid Token".to_string(),
+                        }))
                     }
                 }
-                None => Err(warp::reject::custom(CustomError {})),
+                None => Err(warp::reject::custom(CustomError {
+                    message: "".to_string(),
+                })),
             }
         },
     )
@@ -83,7 +86,9 @@ fn create_customer_route(
                     Ok(_) => Ok(warp::reply::json(&customer)),
                     Err(e) => {
                         eprintln!("Error creating customer: {}", e);
-                        Err(warp::reject::custom(CustomError {}))
+                        Err(warp::reject::custom(CustomError {
+                            message: "Error creating customer".to_string(),
+                        }))
                     }
                 }
             },
@@ -120,7 +125,9 @@ fn order_route(
                     Ok(_) => Ok(warp::reply::json(&order)),
                     Err(e) => {
                         eprintln!("Error creating order: {}", e);
-                        Err(warp::reject::custom(CustomError {}))
+                        Err(warp::reject::custom(CustomError {
+                            message: "Error creating order".to_string(),
+                        }))
                     }
                 }
             },
@@ -144,7 +151,9 @@ fn company_route(
                     Ok(_) => Ok(warp::reply::json(&company)),
                     Err(e) => {
                         eprintln!("Error creating company: {}", e);
-                        Err(warp::reject::custom(CustomError {}))
+                        Err(warp::reject::custom(CustomError {
+                            message: "Error creating company".to_string(),
+                        }))
                     }
                 }
             },
@@ -173,7 +182,9 @@ fn get_bonuses_route(
                     Ok(bonuses) => Ok(warp::reply::json(&bonuses)),
                     Err(e) => {
                         eprintln!("Error retrieving bonuses: {}", e);
-                        Err(warp::reject::custom(CustomError {}))
+                        Err(warp::reject::custom(CustomError {
+                            message: "Error retrieving bonuses".to_string(),
+                        }))
                     }
                 }
             },
@@ -209,7 +220,9 @@ fn get_bonuses_by_customer_route(
                     Ok(bonuses) => Ok(warp::reply::json(&bonuses)),
                     Err(e) => {
                         eprintln!("Error retrieving bonuses: {}", e);
-                        Err(warp::reject::custom(CustomError {}))
+                        Err(warp::reject::custom(CustomError {
+                            message: "Error retrieving bonuses".to_string(),
+                        }))
                     }
                 }
             },

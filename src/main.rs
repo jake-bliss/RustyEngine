@@ -34,7 +34,7 @@ async fn main() {
 
 async fn check_for_orders_and_calculate_bonuses(pool: &sqlx::MySqlPool) {
     loop {
-        sleep(Duration::from_secs(10)).await; // Sleep for 5 minutes
+        sleep(Duration::from_secs(900)).await; // Sleep for 5 minutes
 
         let orders = match ce_database::get_commissions_orders(pool).await {
             Ok(orders) => orders,
