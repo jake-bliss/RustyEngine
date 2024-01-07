@@ -19,3 +19,9 @@ createtables-cloud-db:
 
 droptables-cloud-db:
 	mysql -u staging_db_user_developer -p -h 35.225.39.87 --protocol=TCP -P 3306 < drop-script.sql
+
+docker-build:
+	docker build -t rustengine .
+
+docker-run:
+	docker run --name rustengine -p 3030:3030 -d rustengineW
